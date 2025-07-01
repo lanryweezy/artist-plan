@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Artist Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Custom scrollbar for webkit browsers */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #2d3748; /* dark-700 */
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4a5568; /* dark-500 */
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #718096; /* dark-400 */
+      }
+      
+      /* Error overlay styles */
+      .vite-error-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.95);
+        color: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        text-align: center;
+        padding: 2rem;
+      }
+      
+      .vite-error-overlay h2 {
+        margin: 1rem 0;
+        font-size: 1.5rem;
+      }
+      
+      .vite-error-overlay pre {
+        background: #1e293b;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        max-height: 80vh;
+        margin: 1rem 0;
+      }
+      
+      .vite-error-overlay button {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-top: 1rem;
+      }
+      
+      .vite-error-overlay button:hover {
+        background: #1d4ed8;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-gray-100">
+    <div id="root"></div>
+    <script type="module" src="./src/index.tsx"></script>
+  </body>
+</html>
