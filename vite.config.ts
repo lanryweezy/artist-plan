@@ -23,6 +23,14 @@ export default defineConfig(({ mode }) => {
       hmr: {
         host: 'localhost'
       }
+    },
+    preview: {
+      port: Number(process.env.PORT) || 4173, // Render will set the PORT env var
+      host: true, // Listen on all addresses, including Render's internal network
+      strictPort: true,
+      allowedHosts: [
+        '.onrender.com' // Allows your main Render URL and preview URLs
+      ]
     }
   };
 });
