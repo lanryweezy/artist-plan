@@ -26,10 +26,11 @@ export default defineConfig(({ mode }) => {
     },
     preview: {
       port: Number(process.env.PORT) || 4173, // Render will set the PORT env var
-      host: true, // Listen on all addresses, including Render's internal network
+      host: '0.0.0.0', // Explicitly listen on all IPv4 addresses
       strictPort: true,
       allowedHosts: [
-        '.onrender.com' // Allows your main Render URL and preview URLs
+        'app-artist-plan.onrender.com', // Specific host first
+        '.onrender.com'
       ]
     }
   };
