@@ -23,6 +23,15 @@ export default defineConfig(({ mode }) => {
       hmr: {
         host: 'localhost'
       }
+    },
+    preview: {
+      port: Number(process.env.PORT) || 4173, // Render will set the PORT env var
+      host: '0.0.0.0', // Explicitly listen on all IPv4 addresses
+      strictPort: true,
+      allowedHosts: [
+        'app-artist-plan.onrender.com', // Specific host first
+        '.onrender.com'
+      ]
     }
   };
 });
