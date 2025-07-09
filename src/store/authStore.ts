@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { User } from '../types'; // Assuming your User type is in types.ts
+import { User } from '../../types'; // Corrected path: types.ts is at root
 import apiClient from '../services/apiClient';
 
 interface AuthState {

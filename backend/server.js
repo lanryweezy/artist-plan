@@ -71,6 +71,10 @@ app.use('/api/tours', tourRoutes);
 const showRoutes = require('./routes/showRoutes');
 app.use('/api/shows', showRoutes);
 
+// Dashboard Routes
+const dashboardRoutes = require('./routes/dashboardRoutes');
+app.use('/api/dashboard', dashboardRoutes);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

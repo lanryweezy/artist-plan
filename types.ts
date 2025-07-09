@@ -478,7 +478,12 @@ export const CAMPAIGN_TYPE_OPTIONS: CampaignType[] = [
 
 export type CampaignStatus = 'Draft' | 'Planning' | 'Active' | 'Completed' | 'On Hold';
 export const CAMPAIGN_STATUS_OPTIONS: CampaignStatus[] = [
-  'Draft', 'Planning', 'Active', 'Completed', 'On Hold'
+  'Draft', 'Planning', 'Active', 'Completed', 'On Hold', 'Archived'
+];
+// Assuming ProjectStatus is defined within the Project interface like:
+// status: 'New' | 'Idea' | 'Planning' | 'In Progress' | 'On Hold' | 'Completed' | 'Archived';
+export const ALL_PROJECT_STATUSES: Project['status'][] = [
+  'New', 'Idea', 'Planning', 'In Progress', 'On Hold', 'Completed', 'Archived'
 ];
 
 export const MARKETING_CHANNELS = [

@@ -15,10 +15,15 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  Button, // Added for Logout button
+  Tooltip, // For icon button
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { NAVIGATION_ITEMS } from '../../constants'; // Adjusted path assuming constants.tsx is in src
-import { APP_NAME } from '../../constants'; // Adjusted path
+import LogoutIcon from '@mui/icons-material/Logout'; // Added for Logout icon
+import useAuthStore from '../../store/authStore'; // Added to call logout
+import { useNavigate } from 'react-router-dom'; // Added for redirect after logout
+import { NAVIGATION_ITEMS } from '../../constants';
+import { APP_NAME } from '../../constants';
 
 const drawerWidth = 240;
 
@@ -27,9 +32,17 @@ const Layout: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login'); // Explicitly navigate to login after logout
   };
 
   const drawerContent = (
@@ -85,10 +98,19 @@ const Layout: React.FC = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {/* Current Page Title Can Go Here - Derived from NAVIGATION_ITEMS or route match */}
-            {NAVIGATION_ITEMS.find(navItem => navItem.path === location.pathname)?.name || APP_NAME}
+            {NAVIGATION_ITEMS.find(navItem =>
+                location.pathname === navItem.path || (navItem.path !== '/' && location.pathname.startsWith(navItem.path))
+             )?.name || APP_NAME}
           </Typography>
+          {user && (
+            <Tooltip title="Logout">
+              <IconButton color="inherit" onClick={handleLogout}>
+                <LogoutIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         </Toolbar>
       </AppBar>
       <Box
