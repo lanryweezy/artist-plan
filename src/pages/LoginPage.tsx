@@ -15,7 +15,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Avatar from '@mui/material/Avatar';
 import useAuthStore from '../store/authStore';
 import { loginUser, LoginData } from '../services/authService'; // Import LoginData
-import { APP_NAME } from '../constants'; // Assuming APP_NAME is in constants.ts at src root
+import { APP_NAME } from '../../constants';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -122,7 +122,7 @@ const LoginPage: React.FC = () => {
             </Grid>
             <Grid item>
               <Typography variant="body2">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <RouterLink to="/signup" style={{ color: 'inherit', textDecoration: 'underline' }}>
                   Sign Up
                 </RouterLink>
