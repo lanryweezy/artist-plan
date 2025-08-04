@@ -15,7 +15,7 @@ import Avatar from '@mui/material/Avatar';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'; // Or a different icon for signup
 import useAuthStore from '../store/authStore';
 import { signupUser, SignupData } from '../services/authService';
-import { APP_NAME } from '../../constants-minimal';
+import { APP_NAME } from '../../constants-safe';
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();

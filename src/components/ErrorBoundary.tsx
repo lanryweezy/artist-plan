@@ -8,6 +8,8 @@ interface ErrorFallbackProps {
 }
 
 function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
+  console.error('Error caught by boundary:', error);
+  
   return (
     <Box 
       sx={{ 
@@ -22,23 +24,30 @@ function ErrorFallback({ error, resetErrorBoundary }: ErrorFallbackProps) {
     >
       <Alert severity="error" sx={{ mb: 2, maxWidth: '600px' }}>
         <Typography variant="h6" gutterBottom>
-          Something went wrong
+          Application Error
         </Typography>
-        <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-          {error.message}
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          The app encountered an error and needs to reload.
         </Typography>
         <Typography variant="body2" component="pre" sx={{ 
           whiteSpace: 'pre-wrap', 
           wordBreak: 'break-word',
-          fontSize: '0.8rem',
-          mt: 1,
-          opacity: 0.7
+          fontSize: '0.75rem',
+          fontFamily: 'monospace',
+          backgroundColor: 'rgba(0,0,0,0.1)',
+          padding: 1,
+          borderRadius: 1,
+          maxHeight: '200px',
+          overflow: 'auto'
         }}>
-          {error.stack}
+          {error.message}
         </Typography>
       </Alert>
-      <Button variant="contained" onClick={resetErrorBoundary}>
-        Try again
+      <Button variant="contained" onClick={resetErrorBoundary} sx={{ mr: 1 }}>
+        Try Again
+      </Button>
+      <Button variant="outlined" onClick={() => window.location.reload()}>
+        Reload Page
       </Button>
     </Box>
   );
