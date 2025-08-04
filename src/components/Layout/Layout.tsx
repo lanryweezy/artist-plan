@@ -17,7 +17,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { NAVIGATION_ITEMS, APP_NAME } from '../../../constants-simple';
+import { NAVIGATION_ITEMS, APP_NAME } from '../../../constants-minimal';
 
 const drawerWidth = 240;
 

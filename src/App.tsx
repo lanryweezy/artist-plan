@@ -1,6 +1,6 @@
 import { useRoutes } from 'react-router-dom';
 import { routes } from './routes'; // Using the manually defined routes for now
-import DebugInfo from './debug';
+import SimpleDebugInfo from './debug-simple';
 
 // If you have global styles or contexts that don't need router, they can go here
 // or in main.tsx
@@ -8,13 +8,13 @@ import DebugInfo from './debug';
 function App() {
   const element = useRoutes(routes);
   
-  // Add debug info in development or if there are issues
-  const isDev = import.meta.env.DEV;
+  // Add debug info only in development
+  const isDev = import.meta.env.DEV || import.meta.env.MODE === 'development';
   
   return (
     <>
       {element}
-      {isDev && <DebugInfo />}
+      {isDev && <SimpleDebugInfo />}
     </>
   );
 }

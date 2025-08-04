@@ -15,7 +15,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Avatar from '@mui/material/Avatar';
 import useAuthStore from '../store/authStore';
 import { loginUser, LoginData } from '../services/authService'; // Import LoginData
-import { APP_NAME } from '../../constants-simple';
+import { APP_NAME } from '../../constants-minimal';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
