@@ -13,13 +13,7 @@ import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 
-// Placeholder for pages not yet created
-const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
-  <div style={{ padding: '20px' }}>
-    <h2>{title}</h2>
-    <p>This page is under construction.</p>
-  </div>
-);
+import PlaceholderPage from './components/PlaceholderPage';
 
 export const routes: RouteObject[] = [
   {

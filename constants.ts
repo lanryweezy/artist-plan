@@ -1,17 +1,19 @@
 import { NavItem } from './types';
-import { LightbulbIcon } from './components/icons/LightbulbIcon';
-import { TasksIcon } from './components/icons/TasksIcon';
-import { FinancialsIcon } from './components/icons/FinancialsIcon';
-import { ProjectIcon } from './components/icons/ProjectIcon';
-import { TourIcon } from './components/icons/TourIcon';
-import { BrandIcon } from './components/icons/BrandIcon';
-import { CalendarIcon } from './components/icons/CalendarIcon';
-import { ContentIcon } from './components/icons/ContentIcon';
-import { AnalyticsIcon } from './components/icons/AnalyticsIcon';
-import { BusinessPlanIcon } from './components/icons/BusinessPlanIcon';
-import { CampaignIcon } from './components/icons/CampaignIcon';
-import { IntegrationsIcon } from './components/icons/IntegrationsIcon';
-import { SettingsIcon } from './components/icons/SettingsIcon';
+import {
+  LightbulbOutlined as LightbulbIcon,
+  AssignmentOutlined as TasksIcon,
+  AttachMoneyOutlined as FinancialsIcon,
+  WorkOutlined as ProjectIcon,
+  MapOutlined as TourIcon,
+  BrandingWatermarkOutlined as BrandIcon,
+  CalendarTodayOutlined as CalendarIcon,
+  CreateOutlined as ContentIcon,
+  BarChartOutlined as AnalyticsIcon,
+  BusinessOutlined as BusinessPlanIcon,
+  CampaignOutlined as CampaignIcon,
+  ExtensionOutlined as IntegrationsIcon,
+  SettingsOutlined as SettingsIcon
+} from '@mui/icons-material';
 
 export const APP_NAME = 'Artist Plan';
 

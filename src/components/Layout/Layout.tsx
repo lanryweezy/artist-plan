@@ -17,8 +17,8 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { NAVIGATION_ITEMS } from '../../constants'; // Adjusted path assuming constants.tsx is in src
-import { APP_NAME } from '../../constants'; // Adjusted path
+import { NAVIGATION_ITEMS } from '../../../constants';
+import { APP_NAME } from '../../../constants';
 
 const drawerWidth = 240;
 
