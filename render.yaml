@@ -1,0 +1,47 @@
+# Render.com deployment configuration for Artist Plan
+services:
+  # Backend API Service
+  - type: web
+    name: artist-plan-backend
+    env: python
+    plan: free
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT --workers 4
+    healthCheckPath: /health
+    envVars:
+      - key: MONGODB_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        sync: false
+
+  # Frontend Service
+  - type: web
+    name: artist-plan-frontend
+    env: static
+    plan: free
+    buildCommand: npm ci && npm run build
+    staticPublishPath: .next
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        sync: false
+
+  # MongoDB Database
+  - type: pserv
+    name: artist-plan-mongodb
+    plan: free
+    disk:
+      name: mongodb-data
+      mountPath: /data/db
+      sizeGB: 1
+
+  # Redis Cache
+  - type: redis
+    name: artist-plan-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
