@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Calendar, BarChart3, Target, Users } from 'lucide-react';
-import { CampaignList } from '@/components/marketing/campaign-list';
-import { CampaignForm } from '@/components/marketing/campaign-form';
-import { MarketingAnalytics } from '@/components/marketing/marketing-analytics';
+// import { CampaignList } from '@/components/marketing/campaign-list';
+// import { CampaignForm } from '@/components/marketing/campaign-form';
+// import { MarketingAnalytics } from '@/components/marketing/marketing-analytics';
 import { MarketingOverview } from '@/components/marketing/marketing-overview';
 
 export default function MarketingPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'campaigns' | 'analytics'>('overview');
-  const [showCreateCampaign, setShowCreateCampaign] = useState(false);
+  // const [showCreateCampaign, setShowCreateCampaign] = useState(false);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -23,10 +23,10 @@ export default function MarketingPage() {
             Plan, execute, and track your marketing campaigns across all platforms
           </p>
         </div>
-        <Button onClick={() => setShowCreateCampaign(true)}>
+        {/* <Button onClick={() => setShowCreateCampaign(true)}>
           <Plus className="h-4 w-4 mr-2" />
           New Campaign
-        </Button>
+        </Button> */}
       </div>
 
       {/* Navigation Tabs */}
@@ -59,11 +59,11 @@ export default function MarketingPage() {
 
       {/* Content */}
       {activeTab === 'overview' && <MarketingOverview />}
-      {activeTab === 'campaigns' && <CampaignList />}
-      {activeTab === 'analytics' && <MarketingAnalytics />}
+      {/* {activeTab === 'campaigns' && <CampaignList />} */}
+      {/* {activeTab === 'analytics' && <MarketingAnalytics />} */}
 
       {/* Create Campaign Modal */}
-      {showCreateCampaign && (
+      {/* {showCreateCampaign && (
         <CampaignForm
           onClose={() => setShowCreateCampaign(false)}
           onSuccess={() => {
@@ -71,7 +71,7 @@ export default function MarketingPage() {
             // Refresh campaigns list
           }}
         />
-      )}
+      )} */}
     </div>
   );
 }

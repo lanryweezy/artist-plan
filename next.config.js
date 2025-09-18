@@ -12,7 +12,6 @@ const nextConfig = {
   // Enable standalone output for Docker deployment
   output: 'standalone',
   // Disable telemetry in production
-  telemetry: false,
   // Optimize for production
   swcMinify: true,
   // Security headers

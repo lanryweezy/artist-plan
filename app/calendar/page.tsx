@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { CalendarView } from '@/components/calendar/calendar-view';
 import { CalendarHeader } from '@/components/calendar/calendar-header';
 import { EventSidebar } from '@/components/calendar/event-sidebar';
-import { CreateEventDialog } from '@/components/calendar/create-event-dialog';
+// import { CreateEventDialog } from '@/components/calendar/create-event-dialog';
 import { useCalendarData } from '@/hooks/use-calendar-data';
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<'month' | 'week' | 'day' | 'agenda'>('month');
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  // const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const { events, deadlines, isLoading, refetch } = useCalendarData(currentDate, viewType);
@@ -25,7 +25,7 @@ export default function CalendarPage() {
           onDateChange={setCurrentDate}
           viewType={viewType}
           onViewTypeChange={setViewType}
-          onCreateEvent={() => setShowCreateDialog(true)}
+          // onCreateEvent={() => setShowCreateDialog(true)}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
         
@@ -38,10 +38,10 @@ export default function CalendarPage() {
             isLoading={isLoading}
             onEventSelect={setSelectedEvent}
             onDateSelect={setCurrentDate}
-            onCreateEvent={(date) => {
-              setCurrentDate(date);
-              setShowCreateDialog(true);
-            }}
+            // onCreateEvent={(date) => {
+            //   setCurrentDate(date);
+            //   setShowCreateDialog(true);
+            // }}
           />
         </div>
       </div>
@@ -52,13 +52,13 @@ export default function CalendarPage() {
           selectedEventId={selectedEvent}
           deadlines={deadlines}
           onEventSelect={setSelectedEvent}
-          onCreateEvent={() => setShowCreateDialog(true)}
+          // onCreateEvent={() => setShowCreateDialog(true)}
           onClose={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Create Event Dialog */}
-      <CreateEventDialog
+      {/* <CreateEventDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         initialDate={currentDate}
@@ -66,7 +66,7 @@ export default function CalendarPage() {
           refetch();
           setShowCreateDialog(false);
         }}
-      />
+      /> */}
     </div>
   );
 }

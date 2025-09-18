@@ -20,7 +20,7 @@ interface MonthViewProps {
   events: CalendarEvent[];
   onEventSelect: (eventId: string) => void;
   onDateSelect: (date: Date) => void;
-  onCreateEvent: (date: Date) => void;
+  onCreateEvent?: (date: Date) => void;
 }
 
 export function MonthView({
@@ -81,7 +81,7 @@ export function MonthView({
                 !isCurrentMonth && "bg-muted/20 text-muted-foreground"
               )}
               onClick={() => onDateSelect(day)}
-              onDoubleClick={() => onCreateEvent(day)}
+              onDoubleClick={() => onCreateEvent && onCreateEvent(day)}
             >
               <div className="flex items-center justify-between mb-1">
                 <span
