@@ -17,7 +17,7 @@ interface CalendarHeaderProps {
   onDateChange: (date: Date) => void;
   viewType: 'month' | 'week' | 'day' | 'agenda';
   onViewTypeChange: (view: 'month' | 'week' | 'day' | 'agenda') => void;
-  onCreateEvent?: () => void;
+  onCreateEvent: () => void;
   onToggleSidebar: () => void;
 }
 
@@ -141,12 +141,10 @@ export function CalendarHeader({
         </Select>
 
         {/* Create Event Button */}
-        {onCreateEvent && (
-          <Button onClick={onCreateEvent}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Event
-          </Button>
-        )}
+        <Button onClick={onCreateEvent}>
+          <Plus className="h-4 w-4 mr-2" />
+          New Event
+        </Button>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ interface DayViewProps {
   currentDate: Date;
   events: CalendarEvent[];
   onEventSelect: (eventId: string) => void;
-  onCreateEvent?: (date: Date) => void;
+  onCreateEvent: (date: Date) => void;
 }
 
 export function DayView({
@@ -95,7 +95,7 @@ export function DayView({
           {/* Event area */}
           <div 
             className="flex-1 relative cursor-pointer"
-            onDoubleClick={() => onCreateEvent && onCreateEvent(currentDate)}
+            onDoubleClick={() => onCreateEvent(currentDate)}
           >
             {/* Hour lines */}
             {hours.map(hour => (

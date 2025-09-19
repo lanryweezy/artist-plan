@@ -9,14 +9,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Filter, X, Tag, FolderOpen, FileType } from "lucide-react";
 
+export interface Filters {
+  type: string | null;
+  tags: string[];
+  categories: string[];
+  projectId: string | null;
+}
+
 interface ContentFiltersProps {
-  filters: {
-    type: string | null;
-    tags: string[];
-    categories: string[];
-    projectId: string | null;
-  };
-  onChange: (filters: ContentFilters) => void;
+  filters: Filters;
+  onChange: (filters: Filters) => void;
 }
 
 const CONTENT_TYPES = [
@@ -65,7 +67,7 @@ export function ContentFilters({ filters, onChange }: ContentFiltersProps) {
     }
   };
 
-  const updateFilter = (key: keyof ContentFilters, value: string | string[] | null) => {
+  const updateFilter = (key: keyof Filters, value: string | string[] | null) => {
     onChange({
       ...filters,
       [key]: value

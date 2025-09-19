@@ -1,5 +1,5 @@
 import React from 'react';
 
-export function ContentItem(props: any) {
+export function TourList(props: any) {
   return null;
 }

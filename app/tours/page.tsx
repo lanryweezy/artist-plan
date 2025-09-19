@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Calendar, MapPin, DollarSign, Users } from 'lucide-react';
-// import { TourList } from '@/components/tours/tour-list';
+import { TourList } from '@/components/tours/tour-list';
 import { CreateTourDialog } from '@/components/tours/create-tour-dialog';
 import { TourStats } from '@/components/tours/tour-stats';
 

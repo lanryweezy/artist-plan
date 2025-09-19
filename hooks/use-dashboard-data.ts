@@ -72,7 +72,8 @@ export function useDashboardData() {
     if (!isConnected) return
 
     // Listen for real-time dashboard updates
-    const unsubscribeMetrics = on("dashboard:metrics_updated", (newMetrics: DashboardMetrics) => {
+    const unsubscribeMetrics = on("dashboard:metrics_updated", (data: unknown) => {
+      const newMetrics = data as DashboardMetrics;
       setData(prev => ({
         metrics: newMetrics,
         lastUpdated: new Date()

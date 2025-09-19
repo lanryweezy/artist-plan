@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ContentManager } from "@/components/content/content-manager";
 import { ContentUpload } from "@/components/content/content-upload";
 import { ContentSearch } from "@/components/content/content-search";
-import { ContentFilters } from "@/components/content/content-filters";
+import { ContentFilters, Filters } from "@/components/content/content-filters";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FolderOpen, Search, Filter } from "lucide-react";
@@ -12,7 +12,7 @@ import { Upload, FolderOpen, Search, Filter } from "lucide-react";
 export default function ContentPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilters, setActiveFilters] = useState({
+  const [activeFilters, setActiveFilters] = useState<Filters>({
     type: null,
     tags: [],
     categories: [],

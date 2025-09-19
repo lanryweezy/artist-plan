@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ContentItem } from "./content-item";
-// import { ContentVersionHistory } from "./content-version-history";
+import { ContentVersionHistory } from "./content-version-history";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Grid, List, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -226,7 +226,7 @@ export function ContentManager({ searchQuery, filters }: ContentManagerProps) {
                   viewMode={viewMode}
                   onUpdate={handleContentUpdate}
                   onDelete={handleContentDelete}
-                  // onShowVersionHistory={handleShowVersionHistory}
+                  onShowVersionHistory={handleShowVersionHistory}
                 />
               ))}
             </div>
@@ -235,7 +235,7 @@ export function ContentManager({ searchQuery, filters }: ContentManagerProps) {
       </Card>
 
       {/* Version History Dialog */}
-      {/* {showVersionHistory && selectedContent && (
+      {showVersionHistory && selectedContent && (
         <ContentVersionHistory
           content={selectedContent}
           open={showVersionHistory}
@@ -244,7 +244,7 @@ export function ContentManager({ searchQuery, filters }: ContentManagerProps) {
             setSelectedContent(null);
           }}
         />
-      )} */}
+      )}
     </>
   );
 }

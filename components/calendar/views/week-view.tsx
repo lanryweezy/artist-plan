@@ -19,7 +19,7 @@ interface WeekViewProps {
   events: CalendarEvent[];
   onEventSelect: (eventId: string) => void;
   onDateSelect: (date: Date) => void;
-  onCreateEvent?: (date: Date) => void;
+  onCreateEvent: (date: Date) => void;
 }
 
 export function WeekView({
@@ -116,7 +116,7 @@ export function WeekView({
               <div
                 key={day.toISOString()}
                 className="flex-1 border-r relative"
-                onDoubleClick={() => onCreateEvent && onCreateEvent(day)}
+                onDoubleClick={() => onCreateEvent(day)}
               >
                 {/* Hour lines */}
                 {hours.map(hour => (

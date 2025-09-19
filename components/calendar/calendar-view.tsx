@@ -15,7 +15,7 @@ interface CalendarViewProps {
   isLoading: boolean;
   onEventSelect: (eventId: string) => void;
   onDateSelect: (date: Date) => void;
-  onCreateEvent?: (date: Date) => void;
+  onCreateEvent: (date: Date) => void;
 }
 
 export function CalendarView({
