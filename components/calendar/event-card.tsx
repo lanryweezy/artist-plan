@@ -19,7 +19,7 @@ import {
 interface EventCardProps {
   event: CalendarEvent;
   variant: 'compact' | 'full' | 'timeline' | 'agenda';
-  onClick: () => void;
+  onClick: (e?: React.MouseEvent) => void;
 }
 
 const eventTypeIcons: Record<EventType, React.ComponentType<{ className?: string }>> = {
@@ -78,7 +78,7 @@ export function EventCard({ event, variant, onClick }: EventCardProps) {
           typeColor,
           priorityColor
         )}
-        onClick={onClick}
+        onClick={(e) => onClick(e)}
       >
         <div className="flex items-center space-x-1">
           <Icon className="h-3 w-3 flex-shrink-0" />
@@ -100,7 +100,7 @@ export function EventCard({ event, variant, onClick }: EventCardProps) {
           "p-2 rounded-md cursor-pointer hover:opacity-90 transition-opacity border-l-4 bg-white shadow-sm border",
           priorityColor
         )}
-        onClick={onClick}
+        onClick={(e) => onClick(e)}
       >
         <div className="flex items-start space-x-2">
           <Icon className="h-4 w-4 flex-shrink-0 mt-0.5" />
@@ -134,7 +134,7 @@ export function EventCard({ event, variant, onClick }: EventCardProps) {
           "p-3 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors border-l-4 bg-card",
           priorityColor
         )}
-        onClick={onClick}
+        onClick={(e) => onClick(e)}
       >
         <div className="flex items-start space-x-3">
           <div className={cn("p-2 rounded-full", typeColor)}>
@@ -188,7 +188,7 @@ export function EventCard({ event, variant, onClick }: EventCardProps) {
         "p-4 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors border-l-4 bg-card border",
         priorityColor
       )}
-      onClick={onClick}
+      onClick={(e) => onClick(e)}
     >
       <div className="flex items-start space-x-3">
         <div className={cn("p-2 rounded-full", typeColor)}>

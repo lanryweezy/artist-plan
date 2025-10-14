@@ -8,7 +8,7 @@ import {
   Calendar, 
   Plus, 
   Menu,
-  Today
+  CalendarDays
 } from 'lucide-react';
 import { format, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays } from 'date-fns';
 
@@ -102,7 +102,7 @@ export function CalendarHeader({
             size="sm"
             onClick={goToToday}
           >
-            <Today className="h-4 w-4 mr-1" />
+            <CalendarDays className="h-4 w-4 mr-1" />
             Today
           </Button>
           

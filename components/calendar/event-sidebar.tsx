@@ -24,7 +24,7 @@ interface EventSidebarProps {
   selectedEventId: string | null;
   deadlines: CalendarEvent[];
   onEventSelect: (eventId: string) => void;
-  onCreateEvent: () => void;
+  onCreateEvent?: () => void;
   onClose: () => void;
 }
 
@@ -222,12 +222,14 @@ export function EventSidebar({
           /* Sidebar Content */
           <div className="p-4 space-y-6">
             {/* Quick Actions */}
-            <div>
-              <Button onClick={onCreateEvent} className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
-                New Event
-              </Button>
-            </div>
+            {onCreateEvent && (
+              <div>
+                <Button onClick={onCreateEvent} className="w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Event
+                </Button>
+              </div>
+            )}
 
             <Separator />
 

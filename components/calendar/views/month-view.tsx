@@ -101,7 +101,7 @@ export function MonthView({
                     event={event}
                     variant="compact"
                     onClick={(e) => {
-                      e.stopPropagation();
+                      e?.stopPropagation();
                       onEventSelect(event.id);
                     }}
                   />

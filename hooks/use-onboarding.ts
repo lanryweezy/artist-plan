@@ -71,10 +71,10 @@ export function useOnboarding() {
     let currentStep = 0
 
     // Check which steps are completed based on user data
-    if (user.user_type) {
-      completedSteps.push('user-type')
-      currentStep = Math.max(currentStep, 1)
-    }
+    // if (user.user_type) {
+    //   completedSteps.push('user-type')
+    //   currentStep = Math.max(currentStep, 1)
+    // }
 
     if (preferences.onboarding_goals?.length > 0) {
       completedSteps.push('goals')

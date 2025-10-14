@@ -35,7 +35,8 @@ export function RealTimeNotifications() {
     if (!isConnected) return
 
     // Listen for real-time notifications
-    const unsubscribeNotification = on("notification:new", (notification: Omit<Notification, "id" | "timestamp" | "read">) => {
+    const unsubscribeNotification = on("notification:new", (data: unknown) => {
+      const notification = data as Omit<Notification, "id" | "timestamp" | "read">;
       const newNotification: Notification = {
         ...notification,
         id: Date.now().toString(),
