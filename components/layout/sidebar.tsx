@@ -14,7 +14,26 @@ import {
   Settings,
   Music,
   MapPin,
-  Zap
+  Zap,
+  CheckCircle,
+  Palette,
+  Link2,
+  Scale,
+  Award,
+  BookOpen,
+  TrendingUp,
+  Globe,
+  Users,
+  Disc,
+  Receipt,
+  PiggyBank,
+  Shield,
+  ClipboardList,
+  Calculator,
+  Database,
+  Wrench,
+  Video,
+  Download
 } from "lucide-react"
 
 const navigation = [
@@ -29,14 +48,59 @@ const navigation = [
     icon: FolderOpen,
   },
   {
+    name: "Tasks",
+    href: "/tasks",
+    icon: CheckCircle,
+  },
+  {
     name: "Finances",
     href: "/finances",
     icon: DollarSign,
   },
   {
+    name: "Royalties",
+    href: "/royalties",
+    icon: TrendingUp,
+  },
+  {
+    name: "Tax",
+    href: "/tax",
+    icon: Receipt,
+  },
+  {
+    name: "Export",
+    href: "/export",
+    icon: Download,
+  },
+  {
+    name: "Investment",
+    href: "/investment",
+    icon: PiggyBank,
+  },
+  {
     name: "Content",
     href: "/content",
     icon: FileText,
+  },
+  {
+    name: "Releases",
+    href: "/releases",
+    icon: Disc,
+  },
+  {
+    name: "Distribution",
+    href: "/distribution",
+    icon: Globe,
+  },
+  {
+    name: "YouTube",
+    href: "/youtube",
+    icon: Video,
+  },
+  {
+    name: "Metadata Health",
+    href: "/metadata",
+    icon: Database,
   },
   {
     name: "Calendar",
@@ -54,9 +118,59 @@ const navigation = [
     icon: MapPin,
   },
   {
+    name: "Tour Budget",
+    href: "/tour-budget",
+    icon: Calculator,
+  },
+  {
+    name: "Team",
+    href: "/team",
+    icon: Users,
+  },
+  {
+    name: "Brand",
+    href: "/brand",
+    icon: Palette,
+  },
+  {
+    name: "Publishing",
+    href: "/publishing",
+    icon: BookOpen,
+  },
+  {
+    name: "Grants",
+    href: "/grants",
+    icon: Award,
+  },
+  {
+    name: "Legal",
+    href: "/legal",
+    icon: Scale,
+  },
+  {
+    name: "Contracts",
+    href: "/contracts",
+    icon: ClipboardList,
+  },
+  {
+    name: "Rights & Registration",
+    href: "/rights",
+    icon: Shield,
+  },
+  {
+    name: "Integrations",
+    href: "/integrations",
+    icon: Link2,
+  },
+  {
     name: "AI Assistant",
     href: "/ai",
     icon: Zap,
+  },
+  {
+    name: "Tools",
+    href: "/tools",
+    icon: Wrench,
   },
 ]
 

@@ -9,12 +9,8 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
-  // Enable standalone output for Docker deployment
   output: 'standalone',
-  // Disable telemetry in production
-  // Optimize for production
   swcMinify: true,
-  // Security headers
   async headers() {
     return [
       {
@@ -34,7 +30,15 @@ const nextConfig = {
           },
           {
             key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' http://localhost:8000 https://*.vercel.app; frame-ancestors 'none'; upgrade-insecure-requests;",
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
           },
         ],
       },

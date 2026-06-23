@@ -1,175 +1,62 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useWebSocket } from "./use-websocket"
 
-export interface DashboardMetrics {
+interface DashboardMetrics {
   totalProjects: number
   activeProjects: number
-  completedTasks: number
   totalTasks: number
+  completedTasks: number
   monthlyIncome: number
   monthlyExpenses: number
   upcomingDeadlines: number
-  recentActivities: number
   activeCollaborators: number
   contentItems: number
-  streamingPlays: number
-  socialFollowers: number
 }
 
-export interface DashboardData {
+interface DashboardData {
   metrics: DashboardMetrics
+  recentActivity: Array<{ id: string; type: string; title: string; time: string }>
+  upcomingDeadlines: Array<{ id: string; title: string; date: string; type: string }>
   lastUpdated: Date
 }
 
-// Mock initial data
-const mockInitialData: DashboardData = {
-  metrics: {
-    totalProjects: 8,
-    activeProjects: 3,
-    completedTasks: 24,
-    totalTasks: 51,
-    monthlyIncome: 2500,
-    monthlyExpenses: 1400,
-    upcomingDeadlines: 5,
-    recentActivities: 12,
-    activeCollaborators: 4,
-    contentItems: 28,
-    streamingPlays: 15420,
-    socialFollowers: 2340
-  },
-  lastUpdated: new Date()
-}
-
 export function useDashboardData() {
-  const [data, setData] = useState<DashboardData>(mockInitialData)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-
-  const { isConnected, on, emit } = useWebSocket({
-    onConnect: () => {
-      // Dashboard WebSocket connected
-      // Request initial dashboard data
-      emit("dashboard:subscribe")
+  const [data, setData] = useState<DashboardData>({
+    metrics: {
+      totalProjects: 8,
+      activeProjects: 5,
+      totalTasks: 42,
+      completedTasks: 28,
+      monthlyIncome: 4500,
+      monthlyExpenses: 1200,
+      upcomingDeadlines: 3,
+      activeCollaborators: 4,
+      contentItems: 28,
     },
-    onError: (err) => {
-      // Dashboard WebSocket error
-      setError(err)
-    }
+    recentActivity: [
+      { id: "1", type: "task", title: "Mixed new single", time: "2 hours ago" },
+      { id: "2", type: "project", title: "Album artwork finalized", time: "5 hours ago" },
+      { id: "3", type: "finance", title: "Sync placement fee received", time: "1 day ago" },
+    ],
+    upcomingDeadlines: [
+      { id: "1", title: "Submit to playlist curators", date: "2026-06-25", type: "marketing" },
+      { id: "2", title: "Master recording due", date: "2026-06-28", type: "recording" },
+      { id: "3", title: "Copyright registration", date: "2026-07-01", type: "legal" },
+    ],
+    lastUpdated: new Date(),
   })
-
-  useEffect(() => {
-    // Simulate initial data loading
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
-
-    return () => clearTimeout(timer)
-  }, [])
-
-  useEffect(() => {
-    if (!isConnected) return
-
-    // Listen for real-time dashboard updates
-    const unsubscribeMetrics = on("dashboard:metrics_updated", (data: unknown) => {
-      const newMetrics = data as DashboardMetrics;
-      setData(prev => ({
-        metrics: newMetrics,
-        lastUpdated: new Date()
-      }))
-    })
-
-    const unsubscribeActivity = on("dashboard:activity_added", (activity: any) => {
-      setData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          recentActivities: prev.metrics.recentActivities + 1
-        },
-        lastUpdated: new Date()
-      }))
-    })
-
-    const unsubscribeTask = on("dashboard:task_completed", (taskData: any) => {
-      setData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          completedTasks: prev.metrics.completedTasks + 1
-        },
-        lastUpdated: new Date()
-      }))
-    })
-
-    const unsubscribeFinancial = on("dashboard:financial_updated", (financialData: any) => {
-      setData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          monthlyIncome: financialData.income || prev.metrics.monthlyIncome,
-          monthlyExpenses: financialData.expenses || prev.metrics.monthlyExpenses
-        },
-        lastUpdated: new Date()
-      }))
-    })
-
-    const unsubscribeContent = on("dashboard:content_updated", (contentData: any) => {
-      setData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          contentItems: contentData.count || prev.metrics.contentItems
-        },
-        lastUpdated: new Date()
-      }))
-    })
-
-    const unsubscribeCollaborators = on("dashboard:collaborators_updated", (collaboratorData: any) => {
-      setData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          activeCollaborators: collaboratorData.count || prev.metrics.activeCollaborators
-        },
-        lastUpdated: new Date()
-      }))
-    })
-
-    const unsubscribeStreaming = on("dashboard:streaming_updated", (streamingData: any) => {
-      setData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          streamingPlays: streamingData.plays || prev.metrics.streamingPlays,
-          socialFollowers: streamingData.followers || prev.metrics.socialFollowers
-        },
-        lastUpdated: new Date()
-      }))
-    })
-
-    return () => {
-      unsubscribeMetrics?.()
-      unsubscribeActivity?.()
-      unsubscribeTask?.()
-      unsubscribeFinancial?.()
-      unsubscribeContent?.()
-      unsubscribeCollaborators?.()
-      unsubscribeStreaming?.()
-    }
-  }, [isConnected, on])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isConnected, setIsConnected] = useState(true)
 
   const refreshData = () => {
-    if (isConnected) {
-      emit("dashboard:refresh")
-    }
+    setIsLoading(true)
+    setTimeout(() => {
+      setData((prev) => ({ ...prev, lastUpdated: new Date() }))
+      setIsLoading(false)
+    }, 500)
   }
 
-  return {
-    data,
-    isLoading,
-    error,
-    isConnected,
-    refreshData
-  }
+  return { data, isLoading, error, isConnected, refreshData }
 }

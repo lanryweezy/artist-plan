@@ -1,14 +1,18 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import { AuthProvider } from '@/contexts/auth-context'
-import { ToastContainer } from '@/components/ui/toast'
-
-const inter = Inter({ subsets: ['latin'] })
+import type { Metadata } from "next"
+import "./globals.css"
+import { Toaster } from "sonner"
 
 export const metadata: Metadata = {
-  title: 'Artist Plan - Music Career Management',
-  description: 'Comprehensive music artist management platform',
+  title: "Artist Plan - Music Career Management",
+  description: "The Protector of Your Music Career. Comprehensive management for independent musicians.",
+  openGraph: {
+    title: "Artist Plan",
+    description: "The Protector of Your Music Career.",
+    url: "https://artist-plan.vercel.app",
+    siteName: "Artist Plan",
+    locale: "en_US",
+    type: "website",
+  },
 }
 
 export default function RootLayout({
@@ -18,11 +22,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <AuthProvider>
-          {children}
-          <ToastContainer />
-        </AuthProvider>
+      <body className="font-sans antialiased">
+        {children}
+        <Toaster position="top-right" />
       </body>
     </html>
   )

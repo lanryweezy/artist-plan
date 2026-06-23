@@ -106,11 +106,19 @@ Copy `.env.example` to `.env` and `backend/.env.example` to `backend/.env`, then
 
 The project is set up with hot reloading for both frontend and backend development. Changes to the code will automatically restart the servers.
 
-## Next Steps
+## 🛡️ The Protector: Zero Trust Security Model
 
-This is the initial project setup. The next tasks will implement:
-- Authentication system
-- Database models and schemas
-- Core API endpoints
-- Frontend components and pages
-- AI integration features
+Artist Plan is built with a **Zero Trust** architecture, ensuring every request is verified and sanitized.
+
+*   **Anomaly Detection:** Real-time rate limiting and pressure simulation detection.
+*   **Injection Protection:** Deep sanitization of queries to block NoSQL and SQL injection vectors.
+*   **Secure Handshake:** Enforced TLS 1.3+ headers and strict Content Security Policy (CSP).
+*   **Network Segmentation:** Middleware-driven sector isolation for auto-login and session integrity.
+*   **Pressure Tested:** Includes `scripts/pressure_test.py` to simulate real-world attacks and high-load scenarios.
+
+## 🚀 Optimized for Vercel Deployment
+
+*   **Edge Middleware:** Global request filtering and authentication at the edge.
+*   **Standalone Build:** Optimized `standalone` output for maximum performance.
+*   **Security Headers:** Pre-configured `vercel.json` and `next.config.js` with hardened headers.
+*   **API Rewrites:** Transparent proxying to backend services with zero CORS issues.

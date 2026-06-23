@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+*.md
+docs
+dist
+uploads
+monitoring
+scripts
+*.log
+.env.local
+.env.production
+.env
