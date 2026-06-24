@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -102,12 +102,43 @@ function ProjectsTab() {
   const [view, setView] = useState<"board" | "list">("board")
   const [filterPhase, setFilterPhase] = useState<ProjectPhase | "all">("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [projects, setProjects] = useState<Project[]>(mockProjects)
+  const [draggedProject, setDraggedProject] = useState<string | null>(null)
+  const [dragOverPhase, setDragOverPhase] = useState<ProjectPhase | null>(null)
 
-  const filtered = mockProjects.filter(p => {
+  const filtered = projects.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesPhase = filterPhase === "all" || p.phase === filterPhase
     return matchesSearch && matchesPhase
   })
+
+  const handleDragStart = (e: React.DragEvent, projectId: string) => {
+    setDraggedProject(projectId)
+    e.dataTransfer.effectAllowed = "move"
+    e.dataTransfer.setData("text/plain", projectId)
+  }
+
+  const handleDragOver = (e: React.DragEvent, phase: ProjectPhase) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+    setDragOverPhase(phase)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverPhase(null)
+  }
+
+  const handleDrop = (e: React.DragEvent, targetPhase: ProjectPhase) => {
+    e.preventDefault()
+    const projectId = e.dataTransfer.getData("text/plain")
+    if (projectId && targetPhase) {
+      setProjects(prev => prev.map(p =>
+        p.id === projectId ? { ...p, phase: targetPhase } : p
+      ))
+    }
+    setDraggedProject(null)
+    setDragOverPhase(null)
+  }
 
   return (
     <div className="space-y-4">
@@ -115,25 +146,25 @@ function ProjectsTab() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-3">
-            <p className="text-2xl font-bold">{mockProjects.length}</p>
+            <p className="text-2xl font-bold">{projects.length}</p>
             <p className="text-xs text-muted-foreground">Active Projects</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3">
-            <p className="text-2xl font-bold">{mockProjects.filter(p => p.dueDate && new Date(p.dueDate) < new Date(Date.now() + 7 * 86400000)).length}</p>
+            <p className="text-2xl font-bold">{projects.filter(p => p.dueDate && new Date(p.dueDate) < new Date(Date.now() + 7 * 86400000)).length}</p>
             <p className="text-xs text-muted-foreground">Due This Week</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3">
-            <p className="text-2xl font-bold">{mockProjects.reduce((s, p) => s + p.tasksTotal - p.tasksComplete, 0)}</p>
+            <p className="text-2xl font-bold">{projects.reduce((s, p) => s + p.tasksTotal - p.tasksComplete, 0)}</p>
             <p className="text-xs text-muted-foreground">Open Tasks</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-3">
-            <p className="text-2xl font-bold">{Math.round(mockProjects.reduce((s, p) => s + p.progress, 0) / mockProjects.length)}%</p>
+            <p className="text-2xl font-bold">{Math.round(projects.reduce((s, p) => s + p.progress, 0) / projects.length)}%</p>
             <p className="text-xs text-muted-foreground">Avg Progress</p>
           </CardContent>
         </Card>
@@ -165,31 +196,42 @@ function ProjectsTab() {
 
       {/* Board View */}
       {view === "board" ? (
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
           {phases.map(phase => {
             const phaseProjects = filtered.filter(p => p.phase === phase.key)
+            const isDragOver = dragOverPhase === phase.key
             return (
-              <div key={phase.key} className="min-w-[280px] flex-shrink-0">
-                <div className="flex items-center gap-2 mb-3">
+              <div
+                key={phase.key}
+                className={`min-w-[280px] max-w-[320px] flex-shrink-0 transition-colors rounded-lg ${isDragOver ? "bg-primary/5 ring-2 ring-primary/30" : ""}`}
+                onDragOver={(e) => handleDragOver(e, phase.key)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, phase.key)}
+              >
+                <div className="flex items-center gap-2 mb-3 px-1">
                   <div className={`w-2 h-2 rounded-full ${phase.color}`} />
                   <p className="text-sm font-medium">{phase.label}</p>
                   <Badge variant="secondary" className="text-xs ml-auto">{phaseProjects.length}</Badge>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 min-h-[100px]">
                   {phaseProjects.map(project => {
                     const config = projectTypeConfig[project.type]
                     const Icon = config.icon
+                    const isDragging = draggedProject === project.id
                     return (
-                      <Card key={project.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                      <Card
+                        key={project.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, project.id)}
+                        className={`hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${isDragging ? "opacity-50 scale-95" : ""}`}
+                      >
                         <CardContent className="p-3">
                           <div className="flex items-start justify-between mb-2">
                             <Badge variant="outline" className={`text-xs ${config.color}`}>
                               <Icon className="h-3 w-3 mr-1" />
                               {config.label}
                             </Badge>
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                              <MoreHorizontal className="h-3 w-3" />
-                            </Button>
+                            <GripVertical className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100" />
                           </div>
                           <p className="font-medium text-sm mb-2">{project.title}</p>
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -210,7 +252,7 @@ function ProjectsTab() {
                   })}
                   {phaseProjects.length === 0 && (
                     <div className="p-4 border border-dashed rounded-lg text-center text-xs text-muted-foreground">
-                      No projects in this stage
+                      {isDragOver ? "Drop here" : "No projects"}
                     </div>
                   )}
                 </div>
@@ -219,6 +261,40 @@ function ProjectsTab() {
           })}
         </div>
       ) : (
+        /* List View */
+        <div className="space-y-2">
+          {filtered.map(project => {
+            const config = projectTypeConfig[project.type]
+            const Icon = config.icon
+            return (
+              <Card key={project.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className={`text-xs ${config.color}`}>
+                        <Icon className="h-3 w-3 mr-1" />
+                        {config.label}
+                      </Badge>
+                      <p className="font-medium text-sm">{project.title}</p>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>{project.tasksComplete}/{project.tasksTotal} tasks</span>
+                      {project.dueDate && <span>{new Date(project.dueDate).toLocaleDateString()}</span>}
+                      <div className="w-20">
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-primary rounded-full" style={{ width: `${project.progress}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
         /* List View */
         <div className="space-y-2">
           {filtered.map(project => {
