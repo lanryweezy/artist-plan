@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -33,149 +34,90 @@ import {
   Wrench,
   Video,
   Download,
-  Link2
+  Link2,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react"
 
-const navigation = [
+interface NavGroup {
+  label: string
+  items: { name: string; href: string; icon: React.ElementType }[]
+}
+
+const navGroups: NavGroup[] = [
   {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
+    label: "Overview",
+    items: [
+      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    ]
   },
   {
-    name: "Projects",
-    href: "/projects",
-    icon: FolderOpen,
+    label: "Operations",
+    items: [
+      { name: "Projects", href: "/projects", icon: FolderOpen },
+      { name: "Tasks", href: "/tasks", icon: CheckCircle },
+      { name: "Calendar", href: "/calendar", icon: Calendar },
+      { name: "Tours", href: "/tours", icon: MapPin },
+      { name: "Team", href: "/team", icon: Users },
+    ]
   },
   {
-    name: "Tasks",
-    href: "/tasks",
-    icon: CheckCircle,
+    label: "Money",
+    items: [
+      { name: "Finances", href: "/finances", icon: DollarSign },
+      { name: "Royalties", href: "/royalties", icon: TrendingUp },
+      { name: "Tax", href: "/tax", icon: Receipt },
+      { name: "Investment", href: "/investment", icon: PiggyBank },
+      { name: "Grants", href: "/grants", icon: Award },
+    ]
   },
   {
-    name: "Finances",
-    href: "/finances",
-    icon: DollarSign,
+    label: "Release",
+    items: [
+      { name: "Content", href: "/content", icon: FileText },
+      { name: "Releases", href: "/releases", icon: Disc },
+      { name: "Distribution", href: "/distribution", icon: Globe },
+      { name: "Metadata", href: "/metadata", icon: Database },
+      { name: "Marketing", href: "/marketing", icon: Megaphone },
+      { name: "YouTube", href: "/youtube", icon: Video },
+    ]
   },
   {
-    name: "Royalties",
-    href: "/royalties",
-    icon: TrendingUp,
+    label: "Legal",
+    items: [
+      { name: "Legal", href: "/legal", icon: Scale },
+      { name: "Contracts", href: "/contracts", icon: ClipboardList },
+      { name: "Rights", href: "/rights", icon: Shield },
+    ]
   },
   {
-    name: "Tax",
-    href: "/tax",
-    icon: Receipt,
+    label: "Growth",
+    items: [
+      { name: "Brand", href: "/brand", icon: Palette },
+      { name: "Publishing", href: "/publishing", icon: BookOpen },
+    ]
   },
   {
-    name: "Export",
-    href: "/export",
-    icon: Download,
-  },
-  {
-    name: "Investment",
-    href: "/investment",
-    icon: PiggyBank,
-  },
-  {
-    name: "Content",
-    href: "/content",
-    icon: FileText,
-  },
-  {
-    name: "Releases",
-    href: "/releases",
-    icon: Disc,
-  },
-  {
-    name: "Distribution",
-    href: "/distribution",
-    icon: Globe,
-  },
-  {
-    name: "YouTube",
-    href: "/youtube",
-    icon: Video,
-  },
-  {
-    name: "Metadata Health",
-    href: "/metadata",
-    icon: Database,
-  },
-  {
-    name: "Calendar",
-    href: "/calendar",
-    icon: Calendar,
-  },
-  {
-    name: "Marketing",
-    href: "/marketing",
-    icon: BarChart3,
-  },
-  {
-    name: "Tours",
-    href: "/tours",
-    icon: MapPin,
-  },
-  {
-    name: "Tour Budget",
-    href: "/tour-budget",
-    icon: Calculator,
-  },
-  {
-    name: "Team",
-    href: "/team",
-    icon: Users,
-  },
-  {
-    name: "Brand",
-    href: "/brand",
-    icon: Palette,
-  },
-  {
-    name: "Publishing",
-    href: "/publishing",
-    icon: BookOpen,
-  },
-  {
-    name: "Grants",
-    href: "/grants",
-    icon: Award,
-  },
-  {
-    name: "Legal",
-    href: "/legal",
-    icon: Scale,
-  },
-  {
-    name: "Contracts",
-    href: "/contracts",
-    icon: ClipboardList,
-  },
-  {
-    name: "Rights & Registration",
-    href: "/rights",
-    icon: Shield,
-  },
-  {
-    name: "Integrations",
-    href: "/integrations",
-    icon: Link2,
-  },
-  {
-    name: "AI Assistant",
-    href: "/ai",
-    icon: Zap,
-  },
-  {
-    name: "Tools",
-    href: "/tools",
-    icon: Wrench,
+    label: "Live",
+    items: [
+      { name: "Tour Budget", href: "/tour-budget", icon: Calculator },
+      { name: "Export", href: "/export", icon: Download },
+    ]
   },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(["Overview", "Operations", "Money", "Release", "Legal", "Growth", "Live"]))
+
+  const toggleGroup = (label: string) => {
+    setExpandedGroups(prev => {
+      const next = new Set(prev)
+      if (next.has(label)) next.delete(label)
+      else next.add(label)
+      return next
+    })
+  }
 
   return (
     <div className="flex h-full w-64 flex-col bg-card border-r">
@@ -185,35 +127,88 @@ export function Sidebar() {
           <span className="text-lg lg:text-xl font-bold">Artist Plan</span>
         </div>
       </div>
-      
-      <nav className="flex-1 space-y-1 px-2 lg:px-3 py-4 overflow-y-auto">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href
+
+      <nav className="flex-1 overflow-y-auto py-2">
+        {navGroups.map(group => {
+          const isExpanded = expandedGroups.has(group.label)
+          const isActive = group.items.some(item => pathname === item.href)
+
           return (
-            <Link key={item.name} href={item.href}>
-              <Button
-                variant={isActive ? "secondary" : "ghost"}
+            <div key={group.label} className="mb-1">
+              <button
+                onClick={() => toggleGroup(group.label)}
                 className={cn(
-                  "w-full justify-start text-sm lg:text-base",
-                  isActive && "bg-secondary"
+                  "w-full flex items-center justify-between px-4 py-1.5 text-xs font-semibold uppercase tracking-wider",
+                  isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                <item.icon className="mr-2 lg:mr-3 h-4 w-4" />
-                <span className="truncate">{item.name}</span>
-              </Button>
-            </Link>
+                {group.label}
+                {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              </button>
+
+              {isExpanded && (
+                <div className="space-y-0.5 px-2">
+                  {group.items.map(item => {
+                    const isActive = pathname === item.href
+                    return (
+                      <Link key={item.name} href={item.href}>
+                        <Button
+                          variant={isActive ? "secondary" : "ghost"}
+                          className={cn(
+                            "w-full justify-start text-sm h-8",
+                            isActive && "bg-secondary font-medium"
+                          )}
+                        >
+                          <item.icon className="mr-2 h-4 w-4" />
+                          {item.name}
+                        </Button>
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           )
         })}
       </nav>
-      
-      <div className="p-2 lg:p-3 border-t">
+
+      <div className="border-t space-y-1 p-2">
+        <Link href="/ai">
+          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/ai" && "bg-secondary")}>
+            <Zap className="mr-2 h-4 w-4 text-primary" />
+            AI Assistant
+          </Button>
+        </Link>
+        <Link href="/tools">
+          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/tools" && "bg-secondary")}>
+            <Wrench className="mr-2 h-4 w-4" />
+            Tools
+          </Button>
+        </Link>
         <Link href="/settings">
-          <Button variant="ghost" className="w-full justify-start text-sm lg:text-base">
-            <Settings className="mr-2 lg:mr-3 h-4 w-4" />
-            <span className="truncate">Settings</span>
+          <Button variant="ghost" className="w-full justify-start text-sm">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
           </Button>
         </Link>
       </div>
     </div>
+  )
+}
+
+function Megaphone(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  )
+}
+
+function Video(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <polygon points="23 7 16 12 23 17 23 7" />
+      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+    </svg>
   )
 }
