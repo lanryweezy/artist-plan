@@ -4,10 +4,6 @@
   "framework": "nextjs",
   "installCommand": "npm ci",
   "devCommand": "npm run dev",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "@next_public_api_url",
-    "NEXT_PUBLIC_APP_NAME": "Artist Plan"
-  },
   "headers": [
     {
       "source": "/(.*)",
@@ -33,21 +29,6 @@
           "value": "camera=(), microphone=(), geolocation=()"
         }
       ]
-    },
-    {
-      "source": "/fonts/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/v1/:path*",
-      "destination": "$NEXT_PUBLIC_API_URL/:path*"
     }
   ],
   "cleanUrls": true,

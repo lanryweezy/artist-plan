@@ -57,3 +57,4 @@ uploads/
 
 # Cache
 .cache/
+.vercel
