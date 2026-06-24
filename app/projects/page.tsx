@@ -105,6 +105,7 @@ function ProjectsTab() {
   const [projects, setProjects] = useState<Project[]>(mockProjects)
   const [draggedProject, setDraggedProject] = useState<string | null>(null)
   const [dragOverPhase, setDragOverPhase] = useState<ProjectPhase | null>(null)
+  const [snappedBack, setSnappedBack] = useState<string | null>(null)
 
   const filtered = projects.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -144,8 +145,17 @@ function ProjectsTab() {
     setDragOverPhase(null)
   }
 
-  const handleDragEnd = () => {
-    // Snap back — reset all drag state, no phase change
+  const handleDragEnd = (e: React.DragEvent) => {
+    // Check if dropped outside any column
+    const relatedTarget = e.relatedTarget as HTMLElement
+    const dropZone = (e.target as HTMLElement).closest('[data-phase]')
+
+    if (!dropZone && draggedProject) {
+      // Snapped back — trigger animation
+      setSnappedBack(draggedProject)
+      setTimeout(() => setSnappedBack(null), 400)
+    }
+
     setDraggedProject(null)
     setDragOverPhase(null)
   }
@@ -234,7 +244,11 @@ function ProjectsTab() {
                         draggable
                         onDragStart={(e) => handleDragStart(e, project.id)}
                         onDragEnd={handleDragEnd}
-                        className={`hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${isDragging ? "opacity-50 scale-95" : ""}`}
+                        data-phase={phase.key}
+                        className={`hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${
+                          draggedProject === project.id ? "opacity-50 scale-95" :
+                          snappedBack === project.id ? "animate-snap-back" : ""
+                        }`}
                       >
                         <CardContent className="p-3">
                           <div className="flex items-start justify-between mb-2">
