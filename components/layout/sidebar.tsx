@@ -181,6 +181,12 @@ export function Sidebar() {
             AI Assistant
           </Button>
         </Link>
+        <Link href="/workflows">
+          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/workflows" && "bg-secondary")}>
+            <Zap className="mr-2 h-4 w-4 text-yellow-500" />
+            Workflows
+          </Button>
+        </Link>
         <Link href="/tools">
           <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/tools" && "bg-secondary")}>
             <Wrench className="mr-2 h-4 w-4" />
