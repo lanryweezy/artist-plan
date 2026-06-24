@@ -21,8 +21,10 @@ import {
   Clock,
   DollarSign,
   Eye,
-  Zap
+  Zap,
+  Loader2
 } from "lucide-react"
+import { aiContractReview } from "@/services/ai"
 
 type RiskLevel = "danger" | "warning" | "info" | "safe"
 type ClauseCategory = "ownership" | "royalty" | "term" | "territory" | "creative" | "financial" | "termination" | "other"
@@ -242,13 +244,19 @@ const riskIcons: Record<RiskLevel, React.ElementType> = {
 
 function ReviewTab() {
   const [contractText, setContractText] = useState("")
-  const [analysisResults, setAnalysisResults] = useState<RedFlag[]>([])
+  const [aiResult, setAiResult] = useState<string | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [localFlags, setLocalFlags] = useState<RedFlag[]>([])
   const [hasAnalyzed, setHasAnalyzed] = useState(false)
 
-  const analyzeContract = () => {
+  const analyzeContract = async () => {
+    setIsAnalyzing(true)
+    setAiResult(null)
+    setLocalFlags([])
+
+    // Local pattern matching (always runs)
     const found: RedFlag[] = []
     const textLower = contractText.toLowerCase()
-
     redFlagsDatabase.forEach(flag => {
       const searchTerms = flag.clause.toLowerCase().split(" ").filter(w => w.length > 3)
       const matches = searchTerms.filter(term => textLower.includes(term))
@@ -256,21 +264,18 @@ function ReviewTab() {
         found.push(flag)
       }
     })
+    setLocalFlags(found)
 
-    if (found.length === 0 && contractText.length > 50) {
-      found.push({
-        id: "safe1",
-        clause: "No obvious red flags detected",
-        category: "other",
-        risk: "safe",
-        explanation: "The AI didn't detect any of the common problematic clauses. However, always have an entertainment attorney review any contract before signing.",
-        whatToAsk: "Still consult an attorney. Some clauses may be hidden in legal language.",
-        source: "General best practice"
-      })
+    // AI analysis (runs async)
+    try {
+      const result = await aiContractReview(contractText)
+      setAiResult(result)
+    } catch (err) {
+      setAiResult("AI analysis unavailable. Connect your Gemini API key for full analysis. The local pattern matching above has identified potential issues.")
     }
 
-    setAnalysisResults(found)
     setHasAnalyzed(true)
+    setIsAnalyzing(false)
   }
 
   return (
@@ -294,34 +299,17 @@ function ReviewTab() {
             <p className="text-sm text-muted-foreground">
               {contractText.length > 0 ? `${contractText.length} characters` : "Paste your contract to begin analysis"}
             </p>
-            <Button onClick={analyzeContract} disabled={contractText.length < 50}>
-              <Zap className="h-4 w-4 mr-2" />
-              Analyze Contract
-            </Button>
-          </div>
+          <Button onClick={analyzeContract} disabled={contractText.length < 50 || isAnalyzing}>
+            {isAnalyzing ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Analyzing...</> : <><Zap className="h-4 w-4 mr-2" />Analyze Contract</>}
+          </Button>
         </CardContent>
       </Card>
 
-      {hasAnalyzed && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">
-              Analysis Results ({analysisResults.length} item{analysisResults.length !== 1 ? "s" : ""})
-            </h3>
-            <div className="flex gap-2">
-              <Badge variant="outline" className="bg-red-500/10 text-red-500">
-                {analysisResults.filter(r => r.risk === "danger").length} Danger
-              </Badge>
-              <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500">
-                {analysisResults.filter(r => r.risk === "warning").length} Warning
-              </Badge>
-              <Badge variant="outline" className="bg-green-500/10 text-green-500">
-                {analysisResults.filter(r => r.risk === "safe").length} Safe
-              </Badge>
-            </div>
-          </div>
-
-          {analysisResults.map((result) => {
+      {/* Local Pattern Matching Results */}
+      {hasAnalyzed && localFlags.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium">Pattern Matching ({localFlags.length} issues found)</h3>
+          {localFlags.map(result => {
             const RiskIcon = riskIcons[result.risk]
             return (
               <Card key={result.id} className={`border ${riskColors[result.risk]}`}>
@@ -331,11 +319,11 @@ function ReviewTab() {
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
                         <p className="font-medium">{result.clause}</p>
-                        <Badge variant="outline" className="text-xs">{categoryLabels[result.category]}</Badge>
+                        <Badge variant="outline" className="text-xs">{result.category}</Badge>
                       </div>
                       <p className="text-sm">{result.explanation}</p>
                       <div className="p-2 bg-background/50 rounded text-sm">
-                        <p className="font-medium text-xs text-muted-foreground mb-1">What to ask/ negotiate:</p>
+                        <p className="font-medium text-xs text-muted-foreground mb-1">What to negotiate:</p>
                         <p>{result.whatToAsk}</p>
                       </div>
                       <p className="text-xs text-muted-foreground">Source: {result.source}</p>
@@ -346,6 +334,31 @@ function ReviewTab() {
             )
           })}
         </div>
+      )}
+
+      {/* AI Analysis Results */}
+      {aiResult && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium flex items-center gap-2">
+            <Zap className="h-4 w-4 text-primary" />
+            AI Analysis
+          </h3>
+          <Card>
+            <CardContent className="p-4">
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap">{aiResult}</div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {hasAnalyzed && localFlags.length === 0 && !aiResult && (
+        <Card className="border-green-500/30">
+          <CardContent className="p-4 text-center">
+            <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+            <p className="font-medium">No obvious red flags detected</p>
+            <p className="text-sm text-muted-foreground">Always have an entertainment attorney review before signing.</p>
+          </CardContent>
+        </Card>
       )}
     </div>
   )
