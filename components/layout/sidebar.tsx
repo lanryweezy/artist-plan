@@ -56,7 +56,6 @@ const navGroups: NavGroup[] = [
     label: "Operations",
     items: [
       { name: "Projects", href: "/projects", icon: FolderOpen },
-      { name: "Tasks", href: "/tasks", icon: CheckCircle },
       { name: "Calendar", href: "/calendar", icon: Calendar },
       { name: "Tours", href: "/tours", icon: MapPin },
       { name: "Team", href: "/team", icon: Users },
