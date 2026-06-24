@@ -188,6 +188,12 @@ export function Sidebar() {
             Analytics
           </Button>
         </Link>
+        <Link href="/intelligence">
+          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/intelligence" && "bg-secondary")}>
+            <BarChart3 className="mr-2 h-4 w-4 text-purple-500" />
+            Intelligence
+          </Button>
+        </Link>
         <Link href="/workflows">
           <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/workflows" && "bg-secondary")}>
             <Zap className="mr-2 h-4 w-4 text-green-500" />
