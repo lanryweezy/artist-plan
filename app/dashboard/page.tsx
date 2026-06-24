@@ -1,155 +1,107 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   LayoutDashboard, DollarSign, TrendingUp, TrendingDown, Music, Globe,
-  Users, Calendar, RefreshCw, Zap, ArrowUpRight, AlertCircle, CheckCircle,
-  BarChart3, Target, Shield, Clock, ExternalLink
+  Users, Calendar, RefreshCw, Zap, AlertCircle, CheckCircle, Target,
+  ArrowUpRight, Clock, ExternalLink, Shield, BarChart3, ArrowRight
 } from "lucide-react"
 import { integrationManager } from "@/services/integrations"
 
 // ====== DEMO DATA ======
 
-const demoData = {
-  earnings: {
-    streaming: { spotify: 1247, appleMusic: 892, youtube: 634, soundcloud: 189, other: 234 },
-    royalties: { performance: 892, mechanical: 445, sync: 3500, soundExchange: 423, neighboring: 156 },
-    direct: { merch: 680, live: 2400, courses: 0, crowdfunding: 0 },
-    total: 11257,
-    lastMonth: 9834,
-    change: 14.5,
-  },
-  analytics: {
-    totalStreams: 19700,
-    monthlyListeners: 2340,
-    followers: 4521,
-    topPlatforms: [
-      { name: "Spotify", streams: 8420, growth: 12.5 },
-      { name: "Apple Music", streams: 3240, growth: 8.3 },
-      { name: "YouTube", streams: 5680, growth: 15.2 },
-      { name: "SoundCloud", streams: 1890, growth: -2.1 },
-    ],
-    demographics: { "18-24": 28, "25-34": 35, "35-44": 22, "45+": 15 },
-  },
-  projects: { active: 5, total: 8, tasksComplete: 28, tasksTotal: 42 },
-  fans: { total: 4521, vip: 12, superfan: 89, emailSubscribers: 342 },
-  registrations: {
-    composition: { ascap: true, bmi: false, mlc: false, hfa: false },
-    recording: { soundexchange: false, youtubeCMS: false },
-  },
+const D = {
+  earnings: { total: 11257, lastMonth: 9834, change: 14.5, streaming: 3200, royalties: 4971, direct: 3086 },
+  analytics: { streams: 19700, listeners: 2340, followers: 4521, platforms: [{ n: "Spotify", s: 8420, g: 12.5 }, { n: "Apple Music", s: 3240, g: 8.3 }, { n: "YouTube", s: 5680, g: 15.2 }, { n: "SoundCloud", s: 1890, g: -2.1 }] },
+  projects: { active: 5, tasksComplete: 28, tasksTotal: 42 },
+  fans: { total: 4521, vip: 12, superfan: 89, email: 342 },
+  registrations: { missing: ["MLC", "SoundExchange", "YouTube CMS", "US Copyright Office"] },
   upcoming: [
     { title: "Release Midnight Dreams single", date: "2026-07-15", type: "release" },
     { title: "Submit to Spotify editorial", date: "2026-07-01", type: "marketing" },
     { title: "NEA Grant deadline", date: "2026-08-01", type: "grant" },
   ],
+  aiInsights: [
+    { type: "danger", title: "Missing MLC Registration", desc: "You're not collecting streaming mechanical royalties. Estimated $200-500/month lost.", action: "/rights" },
+    { type: "danger", title: "Missing SoundExchange", desc: "Not collecting from Pandora/SiriusXM. Estimated $100-1,000/quarter lost.", action: "/rights" },
+    { type: "warning", title: "YouTube CMS Not Set Up", desc: "Missing revenue from fan videos using your music.", action: "/integrations" },
+    { type: "success", title: "Spotify Growth", desc: "Streams up 12.5% this month. Your audience is growing.", action: "/royalties" },
+    { type: "info", title: "Sync Opportunity", desc: "Your style fits indie film placements. Consider sync licensing.", action: "/intelligence" },
+  ],
 }
 
-// ====== EARNINGS OVERVIEW ======
+// ====== METRIC CARD ======
 
-function EarningsOverview() {
-  const [period, setPeriod] = useState<"month" | "year">("month")
-  const earnings = demoData.earnings
+function MetricCard({ title, value, change, changeType, icon: Icon, description, href }: {
+  title: string; value: string; change: string; changeType: "positive" | "negative" | "neutral";
+  icon: React.ElementType; description: string; href?: string
+}) {
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">{title}</p>
+            <p className="text-2xl font-bold">{value}</p>
+            <p className={`text-xs flex items-center gap-1 mt-1 ${changeType === "positive" ? "text-green-500" : changeType === "negative" ? "text-red-500" : "text-muted-foreground"}`}>
+              {changeType === "positive" ? <TrendingUp className="h-3 w-3" /> : changeType === "negative" ? <TrendingDown className="h-3 w-3" /> : null}
+              {change}
+            </p>
+          </div>
+          <div className="p-2 bg-muted rounded-lg">
+            <Icon className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
-  const byCategory = [
-    { label: "Streaming", amount: Object.values(earnings.streaming).reduce((a, b) => a + b, 0), color: "text-blue-500", icon: Music },
-    { label: "Royalties", amount: Object.values(earnings.royalties).reduce((a, b) => a + b, 0), color: "text-green-500", icon: TrendingUp },
-    { label: "Direct Sales", amount: Object.values(earnings.direct).reduce((a, b) => a + b, 0), color: "text-purple-500", icon: DollarSign },
+// ====== EARNINGS PANEL ======
+
+function EarningsPanel() {
+  const e = D.earnings
+  const streams = [
+    { name: "Spotify", amount: 1247, pct: 39 },
+    { name: "Apple Music", amount: 892, pct: 28 },
+    { name: "YouTube", amount: 634, pct: 20 },
+    { name: "Other", amount: 427, pct: 13 },
   ]
 
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Earnings Overview</CardTitle>
-          <div className="flex gap-1">
-            <Button variant={period === "month" ? "default" : "outline"} size="sm" onClick={() => setPeriod("month")}>Month</Button>
-            <Button variant={period === "year" ? "default" : "outline"} size="sm" onClick={() => setPeriod("year")}>Year</Button>
-          </div>
+          <CardTitle className="text-base">Earnings</CardTitle>
+          <a href="/royalties"><Button variant="ghost" size="sm" className="text-xs">View All <ArrowRight className="h-3 w-3 ml-1" /></Button></a>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-center p-4 bg-muted/50 rounded-lg">
-          <p className="text-3xl font-bold">${earnings.total.toLocaleString()}</p>
-          <p className="text-sm text-muted-foreground">Total earnings this month</p>
-          <p className={`text-sm flex items-center justify-center gap-1 mt-1 ${earnings.change >= 0 ? "text-green-500" : "text-red-500"}`}>
-            {earnings.change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-            {earnings.change >= 0 ? "+" : ""}{earnings.change}% vs last month
+        <div className="text-center p-3 bg-muted/50 rounded-lg">
+          <p className="text-3xl font-bold">${e.total.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground">This month</p>
+          <p className="text-xs text-green-500 flex items-center justify-center gap-1 mt-1">
+            <TrendingUp className="h-3 w-3" />+{e.change}% vs last month
           </p>
         </div>
-
-        <div className="space-y-3">
-          {byCategory.map(cat => (
-            <div key={cat.label} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <cat.icon className={`h-4 w-4 ${cat.color}`} />
-                <span className="text-sm">{cat.label}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full" style={{ width: `${(cat.amount / earnings.total) * 100}%` }} />
-                </div>
-                <span className="text-sm font-medium w-16 text-right">${cat.amount.toLocaleString()}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="pt-3 border-t">
-          <p className="text-xs text-muted-foreground mb-2">By Source</p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            {Object.entries(earnings.streaming).map(([platform, amount]) => (
-              <div key={platform} className="flex justify-between">
-                <span className="text-muted-foreground capitalize">{platform.replace(/([A-Z])/g, " $1")}</span>
-                <span className="font-medium">${amount.toLocaleString()}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// ====== STREAMING ANALYTICS ======
-
-function StreamingAnalytics() {
-  const analytics = demoData.analytics
-
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Streaming Analytics</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <p className="text-lg font-bold">{(analytics.totalStreams / 1000).toFixed(1)}K</p>
-            <p className="text-xs text-muted-foreground">Total Streams</p>
-          </div>
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <p className="text-lg font-bold">{(analytics.monthlyListeners / 1000).toFixed(1)}K</p>
-            <p className="text-xs text-muted-foreground">Listeners</p>
-          </div>
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <p className="text-lg font-bold">{(analytics.followers / 1000).toFixed(1)}K</p>
-            <p className="text-xs text-muted-foreground">Followers</p>
-          </div>
-        </div>
-
         <div className="space-y-2">
-          {analytics.topPlatforms.map(p => (
-            <div key={p.name} className="flex items-center justify-between text-sm">
-              <span>{p.name}</span>
+          <div className="flex justify-between text-xs"><span className="text-muted-foreground">Streaming</span><span className="font-medium">${e.streaming.toLocaleString()}</span></div>
+          <div className="flex justify-between text-xs"><span className="text-muted-foreground">Royalties</span><span className="font-medium">${e.royalties.toLocaleString()}</span></div>
+          <div className="flex justify-between text-xs"><span className="text-muted-foreground">Direct Sales</span><span className="font-medium">${e.direct.toLocaleString()}</span></div>
+        </div>
+        <div className="pt-2 border-t">
+          <p className="text-xs font-medium mb-2">Top Platforms</p>
+          {streams.map(s => (
+            <div key={s.name} className="flex items-center justify-between text-xs mb-1">
+              <span className="text-muted-foreground">{s.name}</span>
               <div className="flex items-center gap-2">
-                <span className="font-medium">{(p.streams / 1000).toFixed(1)}K</span>
-                <span className={`text-xs ${p.growth >= 0 ? "text-green-500" : "text-red-500"}`}>
-                  {p.growth >= 0 ? "+" : ""}{p.growth}%
-                </span>
+                <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${s.pct}%` }} /></div>
+                <span className="w-12 text-right">${s.amount}</span>
               </div>
             </div>
           ))}
@@ -159,79 +111,60 @@ function StreamingAnalytics() {
   )
 }
 
-// ====== INTEGRATIONS STATUS ======
+// ====== REGISTRATION ALERT ======
 
-function IntegrationsStatus() {
+function RegistrationAlert() {
   const summary = integrationManager.getSummary()
+  const missing = D.registrations.missing
+
+  if (missing.length === 0) return null
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Integrations</CardTitle>
-          <a href="/integrations"><Button variant="ghost" size="sm"><ExternalLink className="h-3 w-3" /></Button></a>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-sm">Setup Progress</span>
-          <span className="text-sm font-bold">{summary.setupPercentage}%</span>
-        </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full" style={{ width: `${summary.setupPercentage}%` }} />
-        </div>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="flex items-center gap-1">
-            <CheckCircle className="h-3 w-3 text-green-500" />
-            <span>{summary.connected} connected</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <AlertCircle className="h-3 w-3 text-yellow-500" />
-            <span>{summary.essentialTotal - summary.essentialConnected} essential missing</span>
-          </div>
-        </div>
-        <div className="space-y-1 text-xs">
-          {integrationManager.getRegistrations().filter(r => r.required).map((r, i) => (
-            <div key={i} className="flex items-center justify-between">
-              <span>{r.agency}</span>
-              {r.status === "connected" ? <CheckCircle className="h-3 w-3 text-green-500" /> : <AlertCircle className="h-3 w-3 text-yellow-500" />}
+    <Card className="border-red-500/30">
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-medium text-red-500">{missing.length} registrations missing — money left on the table</p>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {missing.map(m => (
+                <Badge key={m} variant="outline" className="text-xs bg-red-500/10 text-red-500 border-red-500/30">{m}</Badge>
+              ))}
             </div>
-          ))}
+            <a href="/analytics" className="text-xs text-primary mt-2 inline-flex items-center gap-1 hover:underline">
+              Fix now <ArrowRight className="h-3 w-3" />
+            </a>
+          </div>
         </div>
       </CardContent>
     </Card>
   )
 }
 
-// ====== REVENUE BREAKDOWN ======
+// ====== AI INSIGHTS ======
 
-function RevenueBreakdown() {
-  const streams = demoData.earnings.streaming
-  const royalties = demoData.earnings.royalties
-
+function AIInsightsPanel() {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">Revenue Breakdown</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base flex items-center gap-2"><Zap className="h-4 w-4 text-primary" />AI Insights</CardTitle>
+          <a href="/analytics"><Button variant="ghost" size="sm" className="text-xs">View All <ArrowRight className="h-3 w-3 ml-1" /></Button></a>
+        </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className="space-y-1">
-          {Object.entries(streams).map(([k, v]) => (
-            <div key={k} className="flex justify-between text-xs">
-              <span className="text-muted-foreground capitalize">{k.replace(/([A-Z])/g, " $1")}</span>
-              <span className="font-medium">${v.toLocaleString()}</span>
+        {D.aiInsights.map((ins, i) => (
+          <a key={i} href={ins.action} className="flex items-start gap-2 p-2 border rounded hover:bg-muted/50 transition-colors">
+            {ins.type === "danger" ? <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" /> :
+             ins.type === "warning" ? <AlertCircle className="h-4 w-4 text-yellow-500 shrink-0 mt-0.5" /> :
+             ins.type === "success" ? <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> :
+             <Target className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />}
+            <div>
+              <p className="text-sm font-medium">{ins.title}</p>
+              <p className="text-xs text-muted-foreground">{ins.desc}</p>
             </div>
-          ))}
-        </div>
-        <div className="border-t pt-2 space-y-1">
-          <p className="text-xs font-medium">Royalties</p>
-          {Object.entries(royalties).map(([k, v]) => (
-            <div key={k} className="flex justify-between text-xs">
-              <span className="text-muted-foreground capitalize">{k.replace(/([A-Z])/g, " $1")}</span>
-              <span className="font-medium">${v.toLocaleString()}</span>
-            </div>
-          ))}
-        </div>
+          </a>
+        ))}
       </CardContent>
     </Card>
   )
@@ -239,14 +172,14 @@ function RevenueBreakdown() {
 
 // ====== UPCOMING ======
 
-function Upcoming() {
+function UpcomingPanel() {
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="text-base">Upcoming</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        {demoData.upcoming.map((item, i) => (
+        {D.upcoming.map((item, i) => (
           <div key={i} className="flex items-center justify-between p-2 border rounded">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -263,95 +196,16 @@ function Upcoming() {
   )
 }
 
-// ====== FANS ======
+// ====== QUICK STATS ======
 
-function FansOverview() {
-  const fans = demoData.fans
+function QuickStats() {
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Fans</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <p className="text-lg font-bold">{fans.total.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground">Total</p>
-          </div>
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <p className="text-lg font-bold text-yellow-500">{fans.vip}</p>
-            <p className="text-xs text-muted-foreground">VIP</p>
-          </div>
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <p className="text-lg font-bold text-blue-500">{fans.superfan}</p>
-            <p className="text-xs text-muted-foreground">Superfans</p>
-          </div>
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <p className="text-lg font-bold text-purple-500">{fans.emailSubscribers}</p>
-            <p className="text-xs text-muted-foreground">Email List</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// ====== AI INSIGHTS ======
-
-function AIInsights() {
-  const insights = [
-    { type: "warning", title: "Missing MLC Registration", desc: "You're not collecting streaming mechanical royalties", action: "/rights" },
-    { type: "warning", title: "Missing SoundExchange", desc: "Not collecting from Pandora/SiriusXM", action: "/rights" },
-    { type: "info", title: "YouTube CMS Available", desc: "Monetize fan videos using your music", action: "/integrations" },
-    { type: "success", title: "Spotify Growth", desc: "Streams up 12.5% this month", action: "/royalties" },
-  ]
-
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2"><Zap className="h-4 w-4 text-primary" />AI Insights</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {insights.map((ins, i) => (
-          <a key={i} href={ins.action} className="flex items-start gap-2 p-2 border rounded hover:bg-muted/50 transition-colors">
-            {ins.type === "warning" ? <AlertCircle className="h-4 w-4 text-yellow-500 shrink-0 mt-0.5" /> :
-             ins.type === "success" ? <CheckCircle className="h-4 w-4 text-green-500 shrink-0 mt-0.5" /> :
-             <Target className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />}
-            <div>
-              <p className="text-sm font-medium">{ins.title}</p>
-              <p className="text-xs text-muted-foreground">{ins.desc}</p>
-            </div>
-          </a>
-        ))}
-      </CardContent>
-    </Card>
-  )
-}
-
-// ====== QUICK ACTIONS ======
-
-function QuickActions() {
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">Quick Actions</CardTitle>
-      </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-2">
-        {[
-          { label: "New Project", href: "/projects", icon: FolderOpen },
-          { label: "Add Song", href: "/publishing", icon: Music },
-          { label: "Record Expense", href: "/finances", icon: DollarSign },
-          { label: "Add Contact", href: "/team", icon: Users },
-        ].map(action => (
-          <a key={action.label} href={action.href}>
-            <Button variant="outline" className="w-full justify-start gap-2">
-              <action.icon className="h-4 w-4" />
-              {action.label}
-            </Button>
-          </a>
-        ))}
-      </CardContent>
-    </Card>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <Card className="p-3"><div className="text-center"><p className="text-xl font-bold">{D.analytics.streams.toLocaleString()}</p><p className="text-xs text-muted-foreground">Streams</p></div></Card>
+      <Card className="p-3"><div className="text-center"><p className="text-xl font-bold">{D.analytics.followers.toLocaleString()}</p><p className="text-xs text-muted-foreground">Followers</p></div></Card>
+      <Card className="p-3"><div className="text-center"><p className="text-xl font-bold">{D.projects.active}</p><p className="text-xs text-muted-foreground">Projects</p></div></Card>
+      <Card className="p-3"><div className="text-center"><p className="text-xl font-bold">{D.fans.vip}</p><p className="text-xs text-muted-foreground">VIP Fans</p></div></Card>
+    </div>
   )
 }
 
@@ -364,46 +218,48 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back — here's your music business at a glance</p>
+            <p className="text-muted-foreground">Your music career at a glance</p>
           </div>
           <Button variant="outline" size="sm"><RefreshCw className="h-4 w-4 mr-1" />Refresh</Button>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview" className="gap-2"><LayoutDashboard className="h-4 w-4" />Overview</TabsTrigger>
-            <TabsTrigger value="money" className="gap-2"><DollarSign className="h-4 w-4" />Money</TabsTrigger>
-            <TabsTrigger value="growth" className="gap-2"><TrendingUp className="h-4 w-4" />Growth</TabsTrigger>
-          </TabsList>
+        <RegistrationAlert />
+        <QuickStats />
 
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <EarningsOverview />
-              <StreamingAnalytics />
-              <IntegrationsStatus />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <RevenueBreakdown />
-              <FansOverview />
-              <AIInsights />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Upcoming />
-              <QuickActions />
-            </div>
-          </TabsContent>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <EarningsPanel />
+          </div>
+          <div>
+            <AIInsightsPanel />
+          </div>
+        </div>
 
-          <TabsContent value="money" className="space-y-4">
-            <EarningsOverview />
-            <RevenueBreakdown />
-          </TabsContent>
-
-          <TabsContent value="growth" className="space-y-4">
-            <StreamingAnalytics />
-            <FansOverview />
-          </TabsContent>
-        </Tabs>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <UpcomingPanel />
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-2">
+              {[
+                { label: "New Project", href: "/projects", icon: FolderOpen },
+                { label: "Add Song", href: "/publishing", icon: Music },
+                { label: "Record Income", href: "/finances", icon: DollarSign },
+                { label: "AI Assistant", href: "/ai", icon: Zap },
+              ].map(a => (
+                <a key={a.label} href={a.href}>
+                  <Button variant="outline" className="w-full justify-start gap-2"><a.icon className="h-4 w-4" />{a.label}</Button>
+                </a>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   )
+}
+
+function FolderOpen(props: React.SVGProps<SVGSVGElement>) {
+  return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>
 }
