@@ -36,7 +36,8 @@ import {
   Download,
   Link2,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Heart
 } from "lucide-react"
 
 interface NavGroup {
@@ -94,6 +95,7 @@ const navGroups: NavGroup[] = [
     label: "Growth",
     items: [
       { name: "Brand", href: "/brand", icon: Palette },
+      { name: "Fans", href: "/fans", icon: Heart },
       { name: "Publishing", href: "/publishing", icon: BookOpen },
     ]
   },
