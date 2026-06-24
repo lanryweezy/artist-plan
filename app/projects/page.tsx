@@ -124,8 +124,12 @@ function ProjectsTab() {
     setDragOverPhase(phase)
   }
 
-  const handleDragLeave = () => {
-    setDragOverPhase(null)
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only clear if leaving the drop zone entirely
+    const relatedTarget = e.relatedTarget as HTMLElement
+    if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+      setDragOverPhase(null)
+    }
   }
 
   const handleDrop = (e: React.DragEvent, targetPhase: ProjectPhase) => {
@@ -136,6 +140,12 @@ function ProjectsTab() {
         p.id === projectId ? { ...p, phase: targetPhase } : p
       ))
     }
+    setDraggedProject(null)
+    setDragOverPhase(null)
+  }
+
+  const handleDragEnd = () => {
+    // Snap back — reset all drag state, no phase change
     setDraggedProject(null)
     setDragOverPhase(null)
   }
@@ -223,6 +233,7 @@ function ProjectsTab() {
                         key={project.id}
                         draggable
                         onDragStart={(e) => handleDragStart(e, project.id)}
+                        onDragEnd={handleDragEnd}
                         className={`hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${isDragging ? "opacity-50 scale-95" : ""}`}
                       >
                         <CardContent className="p-3">
