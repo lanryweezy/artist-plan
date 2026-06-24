@@ -489,17 +489,106 @@ export const integrationRegistry: IntegrationDefinition[] = [
   },
 ]
 
+// ====== DEMO DATA ======
+
+export const demoData: Record<string, Record<string, unknown>> = {
+  distrokid: {
+    streams: [
+      { track: "Midnight Dreams", platform: "Spotify", streams: 8420, revenue: 31.2, date: "2026-06" },
+      { track: "Electric Sunset", platform: "Apple Music", streams: 3240, revenue: 18.7, date: "2026-06" },
+      { track: "City Lights", platform: "YouTube Music", streams: 2100, revenue: 8.4, date: "2026-06" },
+    ],
+    totalStreams: 13760,
+    totalRevenue: 58.3,
+  },
+  ascap: {
+    performances: [
+      { work: "Midnight Dreams", source: "Radio WXYZ", quarter: "Q2 2026", amount: 245 },
+      { work: "Electric Sunset", source: "Spotify (performance)", quarter: "Q2 2026", amount: 189 },
+      { work: "City Lights", source: "Live venue - Blue Note", quarter: "Q2 2026", amount: 127 },
+    ],
+    totalRoyalties: 561,
+  },
+  mlc: {
+    mechanicals: [
+      { work: "Midnight Dreams", service: "Spotify", streams: 8420, royalty: 76.6 },
+      { work: "Electric Sunset", service: "Apple Music", streams: 3240, royalty: 29.5 },
+    ],
+    totalRoyalties: 106.1,
+  },
+  soundexchange: {
+    performances: [
+      { track: "Midnight Dreams", service: "Pandora", plays: 1200, royalty: 189 },
+      { track: "Electric Sunset", service: "SiriusXM", plays: 450, royalty: 234 },
+    ],
+    totalRoyalties: 423,
+  },
+  spotify_artists: {
+    monthlyListeners: 2340,
+    followers: 4521,
+    topTracks: [
+      { title: "Midnight Dreams", streams: 8420, listeners: 1890 },
+      { title: "Electric Sunset", streams: 3240, listeners: 1100 },
+      { title: "City Lights", streams: 2100, listeners: 780 },
+    ],
+    demographics: { "18-24": 28, "25-34": 35, "35-44": 22, "45+": 15 },
+  },
+  youtube_cms: {
+    videos: 12,
+    totalViews: 56800,
+    revenue: 634,
+    topVideos: [
+      { title: "Midnight Dreams (Official)", views: 23400, revenue: 267 },
+      { title: "Live at Blue Note", views: 12300, revenue: 142 },
+    ],
+  },
+  stripe: {
+    transactions: [
+      { product: "Midnight Dreams T-Shirt", amount: 35, date: "2026-06-15" },
+      { product: "Vinyl - Debut Album", amount: 28, date: "2026-06-18" },
+      { product: "Show Ticket", amount: 20, date: "2026-06-20" },
+    ],
+    totalRevenue: 680,
+  },
+  mailchimp: {
+    subscribers: 342,
+    openRate: 42.3,
+    clickRate: 12.8,
+    campaigns: 4,
+  },
+  instagram: {
+    followers: 3200,
+    engagement: 4.2,
+    topPosts: 3,
+  },
+}
+
 // ====== INTEGRATION MANAGER ======
 
 class IntegrationManager {
   private states: Map<string, IntegrationState> = new Map()
 
   constructor() {
-    // Initialize all integrations as disconnected
     integrationRegistry.forEach(def => {
       this.states.set(def.id, {
         id: def.id,
         status: "disconnected",
+      })
+    })
+
+    // Pre-connect demo integrations with demo data
+    this.preConnectDemo()
+  }
+
+  private preConnectDemo() {
+    const demoIds = ["distrokid", "ascap", "mlc", "soundexchange", "spotify_artists", "youtube_cms", "stripe", "mailchimp", "instagram"]
+    demoIds.forEach(id => {
+      this.states.set(id, {
+        id,
+        status: "connected",
+        connectedAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+        lastSyncAt: new Date(Date.now() - 3600000).toISOString(),
+        data: demoData[id] || null,
       })
     })
   }
@@ -561,7 +650,7 @@ class IntegrationManager {
 
     this.states.set(id, { ...state, status: "syncing" })
 
-    // Simulate sync (in production, call API)
+    // Simulate sync
     await new Promise(r => setTimeout(r, 500))
 
     const updatedState = this.states.get(id)!
@@ -569,6 +658,7 @@ class IntegrationManager {
       ...updatedState,
       status: "connected",
       lastSyncAt: new Date().toISOString(),
+      data: demoData[id] || updatedState.data,
     })
 
     return { success: true, recordsUpdated: 5, newRecords: 2, errors: [], timestamp: new Date().toISOString() }
