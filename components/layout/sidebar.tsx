@@ -17,7 +17,6 @@ import {
   Zap,
   CheckCircle,
   Palette,
-  Link2,
   Scale,
   Award,
   BookOpen,
@@ -33,7 +32,8 @@ import {
   Database,
   Wrench,
   Video,
-  Download
+  Download,
+  Link2
 } from "lucide-react"
 
 const navigation = [

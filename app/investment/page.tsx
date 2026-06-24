@@ -18,7 +18,8 @@ import {
   PieChart,
   BarChart3,
   Shield,
-  Lightbulb
+  Lightbulb,
+  BookOpen
 } from "lucide-react"
 
 type InvestmentType = "royalty_purchase" | "future_royalties" | "crowdfunding" | "angel" | "label_advance" | "grant"
@@ -276,16 +277,6 @@ function GuideTab() {
     </div>
   )
 }
-
-function Clock(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  )
-}
-
 export default function InvestmentPage() {
   return (
     <DashboardLayout>
@@ -323,11 +314,3 @@ export default function InvestmentPage() {
   )
 }
 
-function BookOpen(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-    </svg>
-  )
-}

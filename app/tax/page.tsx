@@ -19,7 +19,8 @@ import {
   Receipt,
   Building2,
   Download,
-  Search
+  Search,
+  Clock
 } from "lucide-react"
 
 type IncomeCategory = "streaming" | "sync" | "live" | "merch" | "publishing" | "session" | "teaching" | "other"
@@ -282,16 +283,6 @@ function SummaryTab() {
     </div>
   )
 }
-
-function Clock(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  )
-}
-
 export default function TaxPage() {
   return (
     <DashboardLayout>

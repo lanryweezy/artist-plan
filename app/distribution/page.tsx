@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Disc,
   Radio,
+  Clock,
   Headphones
 } from "lucide-react"
 
@@ -299,16 +300,6 @@ function MetadataTab() {
     </div>
   )
 }
-
-function Clock(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  )
-}
-
 export default function DistributionPage() {
   return (
     <DashboardLayout>

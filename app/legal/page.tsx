@@ -22,7 +22,8 @@ import {
   Video,
   Radio,
   Printer,
-  BookOpen
+  BookOpen,
+  Disc
 } from "lucide-react"
 
 type LicenseType = "mechanical" | "sync" | "master" | "performance" | "print"
@@ -652,11 +653,3 @@ export default function LegalPage() {
   )
 }
 
-function Disc(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  )
-}

@@ -39,7 +39,6 @@ export function AIInsights() {
           { name: "City Lights Single", status: "Mastering" },
         ],
         financialsSummary: "Monthly income: $5,410, Expenses: $1,879, Net: $3,531",
-        unreviewedLyricsCount: 2,
       })
 
       setFocusToday(focus)
