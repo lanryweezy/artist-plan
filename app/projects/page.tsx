@@ -320,40 +320,6 @@ function ProjectsTab() {
       )}
     </div>
   )
-        /* List View */
-        <div className="space-y-2">
-          {filtered.map(project => {
-            const config = projectTypeConfig[project.type]
-            const Icon = config.icon
-            return (
-              <Card key={project.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className={`text-xs ${config.color}`}>
-                        <Icon className="h-3 w-3 mr-1" />
-                        {config.label}
-                      </Badge>
-                      <p className="font-medium text-sm">{project.title}</p>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>{project.tasksComplete}/{project.tasksTotal} tasks</span>
-                      {project.dueDate && <span>{new Date(project.dueDate).toLocaleDateString()}</span>}
-                      <div className="w-20">
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-primary rounded-full" style={{ width: `${project.progress}%` }} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
 }
 
 function TemplatesTab() {

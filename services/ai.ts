@@ -395,49 +395,6 @@ Based on your question, here are my recommendations:
 *Connect your Gemini API for personalized career advice.*`
 }
 
-function getDemoReleasePlan(type: string): string {
-  return `📋 **${type || "Single"} Release Plan:**
-
-**12-Week Timeline:**
-- Weeks 1-4: Production (record, mix, master)
-- Weeks 5-6: Registration (copyright, ISRC, PRO, MLC, SoundExchange)
-- Week 7: Distribution (submit to distributor, 4 weeks before release)
-- Weeks 8-9: Pre-release marketing (teasers, pre-save, press)
-- Week 10: Release week (daily content, email blast, live show)
-- Weeks 11-12: Post-release (BTS content, playlist pitching, fan engagement)
-
-**Registrations Required:**
-- US Copyright Office ($35-45)
-- ISRC code via distributor
-- ASCAP or BMI ($50 one-time)
-- MLC (free)
-- SoundExchange (free)
-- YouTube CMS (via distributor)
-
-*Connect Gemini API for personalized planning.*`
-}
-
-function getDemoCareerAdvice(question: string): string {
-  return `Based on your question, here are actionable steps:
-
-**This Week:**
-1. Check registration status at /rights — make sure you're registered with PRO, MLC, SoundExchange
-2. Update song catalog with ISRC/ISWC codes at /publishing
-3. Post 3x on your primary social platform
-
-**This Month:**
-1. Plan your next release with a 12-week timeline
-2. Build email list — you own this, unlike social followers
-3. Play 2-3 local shows to build live fanbase
-
-**Strategic:**
-- Your competitive advantage is authenticity, live performance, and community — AI can't replicate these
-- Focus on direct fan relationships (email > social)
-- Register with every collection agency to avoid "black box" unclaimed royalties
-
-*Connect Gemini API for personalized advice.*`
-}
-
 // ====== EXPORTS ======
 
 export {

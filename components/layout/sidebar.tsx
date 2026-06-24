@@ -29,17 +29,17 @@ import {
   PiggyBank,
   Shield,
   ClipboardList,
-  Calculator,
   Database,
   Wrench,
-  Video,
   Download,
   Link2,
   ChevronDown,
   ChevronRight,
   Heart,
   Target,
-  Calculator
+  Calculator,
+  Megaphone as MegaphoneIcon,
+  Video as VideoIcon
 } from "lucide-react"
 
 interface NavGroup {
@@ -80,8 +80,8 @@ const navGroups: NavGroup[] = [
       { name: "Releases", href: "/releases", icon: Disc },
       { name: "Distribution", href: "/distribution", icon: Globe },
       { name: "Metadata", href: "/metadata", icon: Database },
-      { name: "Marketing", href: "/marketing", icon: Megaphone },
-      { name: "YouTube", href: "/youtube", icon: Video },
+      { name: "Marketing", href: "/marketing", icon: MegaphoneIcon },
+      { name: "YouTube", href: "/youtube", icon: VideoIcon },
     ]
   },
   {
@@ -214,22 +214,5 @@ export function Sidebar() {
         </Link>
       </div>
     </div>
-  )
-}
-
-function Megaphone(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
-  )
-}
-
-function Video(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <polygon points="23 7 16 12 23 17 23 7" />
-      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-    </svg>
   )
 }
