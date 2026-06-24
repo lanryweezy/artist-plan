@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { Toaster } from "sonner"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 
 export const metadata: Metadata = {
   title: "Artist Plan - Music Career Management",
@@ -23,7 +24,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
         <Toaster position="top-right" />
       </body>
     </html>
