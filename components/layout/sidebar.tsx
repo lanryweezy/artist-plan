@@ -37,7 +37,9 @@ import {
   Link2,
   ChevronDown,
   ChevronRight,
-  Heart
+  Heart,
+  Target,
+  Calculator
 } from "lucide-react"
 
 interface NavGroup {
@@ -180,9 +182,15 @@ export function Sidebar() {
             AI Assistant
           </Button>
         </Link>
+        <Link href="/analytics">
+          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/analytics" && "bg-secondary")}>
+            <Target className="mr-2 h-4 w-4 text-yellow-500" />
+            Analytics
+          </Button>
+        </Link>
         <Link href="/workflows">
           <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/workflows" && "bg-secondary")}>
-            <Zap className="mr-2 h-4 w-4 text-yellow-500" />
+            <Zap className="mr-2 h-4 w-4 text-green-500" />
             Workflows
           </Button>
         </Link>
