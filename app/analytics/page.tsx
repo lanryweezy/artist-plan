@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Shield, CheckCircle, XCircle, AlertCircle, ExternalLink, RefreshCw,
-  DollarSign, Globe, Music, ArrowRight, Zap, Clock, Target, TrendingUp
+  DollarSign, Globe, Music, ArrowRight, Zap, Clock, Target, TrendingUp,
+  Input, Calculator
 } from "lucide-react"
 import { integrationManager } from "@/services/integrations"
 
@@ -392,11 +393,11 @@ function TourEconomicsCalculator() {
   const [managerPct, setManagerPct] = useState(15)
 
   const tourWeeks = Math.ceil(shows / 4)
+  const totalGuarantees = shows * avgGuarantee
   const totalTicketRevenue = shows * avgAttendance * ticketPrice
   const totalMerchRevenue = shows * avgAttendance * merchPerHead
   const artistMerch = totalMerchRevenue * (merchCut / 100)
   const totalRevenue = totalGuarantees + artistMerch + totalTicketRevenue
-  const totalGuarantees = shows * avgGuarantee
 
   const busCost = tourWeeks * busWeekly
   const crewCost = tourWeeks * crewWeekly
