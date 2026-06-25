@@ -9,8 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Shield, CheckCircle, XCircle, AlertCircle, ExternalLink, RefreshCw,
   DollarSign, Globe, Music, ArrowRight, Zap, Clock, Target, TrendingUp,
-  Input, Calculator
+  Calculator
 } from "lucide-react"
+import { Input } from "@/components/ui/input"
 import { integrationManager } from "@/services/integrations"
 
 // ====== PRIORITY 1: Registration Completeness Tracker ======
