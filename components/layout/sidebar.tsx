@@ -4,43 +4,13 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/components/ThemeToggle"
 import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import {
-  LayoutDashboard,
-  FolderOpen,
-  DollarSign,
-  FileText,
-  Calendar,
-  BarChart3,
-  Settings,
-  Music,
-  MapPin,
-  Zap,
-  CheckCircle,
-  Palette,
-  Scale,
-  Award,
-  BookOpen,
-  TrendingUp,
-  Globe,
-  Users,
-  Disc,
-  Receipt,
-  PiggyBank,
-  Shield,
-  ClipboardList,
-  Database,
-  Wrench,
-  Download,
-  Link2,
-  ChevronDown,
-  ChevronRight,
-  Heart,
-  Target,
-  Calculator,
-  Megaphone as MegaphoneIcon,
-  Video as VideoIcon
+  LayoutDashboard, FolderOpen, DollarSign, FileText, Calendar,
+  Music, MapPin, Zap, CheckCircle, Palette, Users, Globe,
+  Disc, TrendingUp, Settings, ChevronDown, ChevronRight,
+  BookOpen, Shield, Award, Sparkles
 } from "lucide-react"
 
 interface NavGroup {
@@ -50,18 +20,12 @@ interface NavGroup {
 
 const navGroups: NavGroup[] = [
   {
-    label: "Overview",
-    items: [
-      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    ]
-  },
-  {
-    label: "Operations",
+    label: "Create",
     items: [
       { name: "Projects", href: "/projects", icon: FolderOpen },
-      { name: "Calendar", href: "/calendar", icon: Calendar },
-      { name: "Tours", href: "/tours", icon: MapPin },
-      { name: "Team", href: "/team", icon: Users },
+      { name: "Releases", href: "/releases", icon: Disc },
+      { name: "Publishing", href: "/publishing", icon: BookOpen },
+      { name: "Content", href: "/content", icon: FileText },
     ]
   },
   {
@@ -69,50 +33,31 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Finances", href: "/finances", icon: DollarSign },
       { name: "Royalties", href: "/royalties", icon: TrendingUp },
-      { name: "Tax", href: "/tax", icon: Receipt },
-      { name: "Investment", href: "/investment", icon: PiggyBank },
+      { name: "Tax", href: "/tax", icon: FileText },
       { name: "Grants", href: "/grants", icon: Award },
     ]
   },
   {
-    label: "Release",
+    label: "Grow",
     items: [
-      { name: "Content", href: "/content", icon: FileText },
-      { name: "Releases", href: "/releases", icon: Disc },
-      { name: "Distribution", href: "/distribution", icon: Globe },
-      { name: "Metadata", href: "/metadata", icon: Database },
-      { name: "Marketing", href: "/marketing", icon: MegaphoneIcon },
-      { name: "YouTube", href: "/youtube", icon: VideoIcon },
-    ]
-  },
-  {
-    label: "Legal",
-    items: [
-      { name: "Legal", href: "/legal", icon: Scale },
-      { name: "Contracts", href: "/contracts", icon: ClipboardList },
-      { name: "Rights", href: "/rights", icon: Shield },
-    ]
-  },
-  {
-    label: "Growth",
-    items: [
+      { name: "Fans", href: "/fans", icon: Users },
       { name: "Brand", href: "/brand", icon: Palette },
-      { name: "Fans", href: "/fans", icon: Heart },
-      { name: "Publishing", href: "/publishing", icon: BookOpen },
+      { name: "Marketing", href: "/marketing", icon: Megaphone },
+      { name: "Team", href: "/team", icon: Users },
     ]
   },
   {
     label: "Live",
     items: [
+      { name: "Tours", href: "/tours", icon: MapPin },
       { name: "Tour Budget", href: "/tour-budget", icon: Calculator },
-      { name: "Export", href: "/export", icon: Download },
     ]
   },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(["Overview", "Operations", "Money", "Release", "Legal", "Growth", "Live"]))
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(["Create", "Money", "Grow", "Live"]))
 
   const toggleGroup = (label: string) => {
     setExpandedGroups(prev => {
@@ -179,33 +124,15 @@ export function Sidebar() {
 
       <div className="border-t space-y-1 p-2">
         <Link href="/ai">
-          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/ai" && "bg-secondary")}>
-            <Zap className="mr-2 h-4 w-4 text-primary" />
+          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/ai" && "bg-primary/10 text-primary font-medium")}>
+            <Sparkles className="mr-2 h-4 w-4 text-primary" />
             AI Assistant
           </Button>
         </Link>
-        <Link href="/analytics">
-          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/analytics" && "bg-secondary")}>
-            <Target className="mr-2 h-4 w-4 text-yellow-500" />
-            Analytics
-          </Button>
-        </Link>
-        <Link href="/intelligence">
-          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/intelligence" && "bg-secondary")}>
-            <BarChart3 className="mr-2 h-4 w-4 text-purple-500" />
-            Intelligence
-          </Button>
-        </Link>
-        <Link href="/workflows">
-          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/workflows" && "bg-secondary")}>
-            <Zap className="mr-2 h-4 w-4 text-green-500" />
-            Workflows
-          </Button>
-        </Link>
-        <Link href="/tools">
-          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/tools" && "bg-secondary")}>
-            <Wrench className="mr-2 h-4 w-4" />
-            Tools
+        <Link href="/integrations">
+          <Button variant="ghost" className={cn("w-full justify-start text-sm", pathname === "/integrations" && "bg-secondary")}>
+            <Globe className="mr-2 h-4 w-4" />
+            Integrations
           </Button>
         </Link>
         <Link href="/settings">
@@ -217,4 +144,12 @@ export function Sidebar() {
       </div>
     </div>
   )
+}
+
+function Megaphone(props: React.SVGProps<SVGSVGElement>) {
+  return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 11l18-5v12L3 13v-2z" /><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" /></svg>
+}
+
+function Calculator(props: React.SVGProps<SVGSVGElement>) {
+  return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2" /><line x1="8" y1="6" x2="16" y2="6" /><line x1="8" y1="10" x2="8" y2="10.01" /><line x1="12" y1="10" x2="12" y2="10.01" /><line x1="16" y1="10" x2="16" y2="10.01" /><line x1="8" y1="14" x2="8" y2="14.01" /><line x1="12" y1="14" x2="12" y2="14.01" /><line x1="16" y1="14" x2="16" y2="14.01" /><line x1="8" y1="18" x2="8" y2="18.01" /><line x1="12" y1="18" x2="12" y2="18.01" /><line x1="16" y1="18" x2="16" y2="18.01" /></svg>
 }
