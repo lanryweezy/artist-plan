@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { Send, Sparkles, Music, TrendingUp, DollarSign, Loader2, Bot, User, AlertCircle, Zap, FileText, Target, Globe, Shield, Users } from "lucide-react"
 import { aiWithMemory, memoryStore } from "@/services/memory"
 
