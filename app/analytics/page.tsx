@@ -17,7 +17,7 @@ import { integrationManager } from "@/services/integrations"
 interface RegistrationCheck {
   id: string
   name: string
-  side: "composition" | "recording"
+  side: "composition" | "recording" | "both"
   category: string
   required: boolean
   estimatedRevenue: string
