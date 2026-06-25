@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Calculator, DollarSign, TrendingUp, TrendingDown, AlertTriangle, CheckCircle,
-  BarChart3, Target, Zap, RefreshCw, ArrowRight, Minus, Plus, Info
+  BarChart3, Target, Zap, RefreshCw, ArrowRight, Minus, Plus, Info, Users
 } from "lucide-react"
 
 // ====== DEAL SIMULATOR ======

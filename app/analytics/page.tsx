@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Shield, CheckCircle, XCircle, AlertCircle, ExternalLink, RefreshCw,
   DollarSign, Globe, Music, ArrowRight, Zap, Clock, Target, TrendingUp,
-  Calculator
+  Calculator, FileText
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { integrationManager } from "@/services/integrations"

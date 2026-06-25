@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DollarSign, TrendingUp, TrendingDown, Music, Globe, Radio, Video, AlertCircle, CheckCircle, ExternalLink } from "lucide-react"
+import { DollarSign, TrendingUp, TrendingDown, Music, Globe, Radio, Video, AlertCircle, CheckCircle, ExternalLink, BarChart3 } from "lucide-react"
 
 const streams = [
   { name: "Spotify", amount: 1247, change: 12.5, collected: true, source: "DistroKid" },
