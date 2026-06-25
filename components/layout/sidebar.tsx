@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import { Button } from "@/components/ui/button"
 import {
   LayoutDashboard,
@@ -124,11 +125,12 @@ export function Sidebar() {
 
   return (
     <div className="flex h-full w-64 flex-col bg-card border-r">
-      <div className="flex h-16 items-center px-4 lg:px-6 border-b">
+      <div className="flex h-16 items-center justify-between px-4 lg:px-6 border-b">
         <div className="flex items-center space-x-2">
           <Music className="h-6 w-6 lg:h-8 lg:w-8 text-primary" />
           <span className="text-lg lg:text-xl font-bold">Artist Plan</span>
         </div>
+        <ThemeToggle />
       </div>
 
       <nav className="flex-1 overflow-y-auto py-2">
