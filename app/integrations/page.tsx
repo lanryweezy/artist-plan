@@ -237,7 +237,7 @@ function CatalogTab() {
     return matchSearch && matchImp
   })
 
-  const categories = [...new Set(filtered.map(i => i.category))]
+  const categories = Array.from(new Set(filtered.map(i => i.category)))
 
   const categoryLabels: Record<string, string> = { distribution: "Distribution", pro: "Performance Rights", mechanical: "Mechanical Rights", sound_recording: "Sound Recording", youtube: "YouTube", payment: "Payment", email: "Email Marketing", analytics: "Analytics", social: "Social Media", streaming: "Streaming" }
 

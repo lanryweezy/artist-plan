@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Music, Plus, ArrowRight, BookOpen, Shield, Zap } from "lucide-react"
+import { Music, Plus, ArrowRight, BookOpen, Shield, Zap, Check, DollarSign, Users } from "lucide-react"
 
 interface EmptyStateProps {
   title: string
