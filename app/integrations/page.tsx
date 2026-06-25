@@ -12,7 +12,7 @@ import {
   ArrowRight, Globe, BarChart3, Zap, DollarSign, Shield, Music, Video,
   RefreshCw, AlertCircle, Loader2, Settings, Link2, Unlink
 } from "lucide-react"
-import { integrationManager, type IntegrationDefinition, type IntegrationState, type DataType } from "@/services/integrations"
+import { integrationManager, type IntegrationDefinition, type IntegrationState, type DataType, type IntegrationCategory } from "@/services/integrations"
 
 // ====== READINESS PANEL ======
 
@@ -70,7 +70,7 @@ function WizardTab() {
   ]
 
   const s = steps[step]
-  const integrations = integrationManager.getAll().filter(i => s.categories.includes(i.category as any))
+  const integrations = integrationManager.getAll().filter(i => s.categories.includes(i.category as IntegrationCategory))
   const summary = integrationManager.getSummary()
 
   return (
