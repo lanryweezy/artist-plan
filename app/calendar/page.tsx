@@ -1,4 +1,5 @@
 'use client';
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
 
 import { useState } from 'react';
 import { CalendarView } from '@/components/calendar/calendar-view';
@@ -17,6 +18,7 @@ export default function CalendarPage() {
   const { events, deadlines, isLoading, refetch } = useCalendarData(currentDate, viewType);
 
   return (
+    <DashboardLayout>
     <div className="flex h-screen bg-background">
       {/* Main Calendar Area */}
       <div className="flex-1 flex flex-col">

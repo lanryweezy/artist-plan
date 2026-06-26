@@ -1,4 +1,5 @@
 "use client";
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
 
 import { useState } from "react";
 import { ContentManager } from "@/components/content/content-manager";
@@ -20,6 +21,7 @@ export default function ContentPage() {
   });
 
   return (
+    <DashboardLayout>
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
