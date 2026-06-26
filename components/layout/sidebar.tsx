@@ -31,10 +31,9 @@ const navGroups: NavGroup[] = [
   {
     label: "Money",
     items: [
-      { name: "Finances", href: "/finances", icon: DollarSign },
-      { name: "Royalties", href: "/royalties", icon: TrendingUp },
-      { name: "Tax", href: "/tax", icon: FileText },
+      { name: "Money", href: "/money", icon: DollarSign },
       { name: "Grants", href: "/grants", icon: Award },
+      { name: "Investment", href: "/investment", icon: TrendingUp },
     ]
   },
   {

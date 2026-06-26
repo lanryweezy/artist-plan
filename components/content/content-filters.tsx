@@ -112,7 +112,7 @@ export function ContentFilters({ filters, onChange }: ContentFiltersProps) {
             </div>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Types</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             {CONTENT_TYPES.map(type => (
               <SelectItem key={type.value} value={type.value}>
                 <div className="flex items-center gap-2">
