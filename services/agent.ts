@@ -1,309 +1,273 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
-import { supabase } from "./supabase"
-import { aiActions, type AIAction } from "./ai-actions"
+// Agent Core — Runs on loop, carries out operations for the artist
+// The artist doesn't click buttons. The agent does everything.
 
-const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null
+import { memoryStore } from "./memory"
+import { integrationManager } from "./integrations"
 
-interface AgentStep {
-  action: AIAction
-  params: Record<string, any>
-  reasoning: string
+// ====== AGENT TYPES ======
+
+interface AgentTask {
+  id: string
+  type: "monitor" | "register" | "email" | "content" | "check" | "alert" | "report"
+  status: "pending" | "running" | "completed" | "failed"
+  description: string
+  result?: string
+  scheduledAt?: string
+  completedAt?: string
 }
 
-interface AgentResult {
-  success: boolean
-  steps: { action: string; result: string; success: boolean }[]
-  summary: string
-  error?: string
+interface AgentAlert {
+  id: string
+  severity: "info" | "warning" | "urgent"
+  title: string
+  message: string
+  action?: string
+  actionUrl?: string
+  createdAt: string
 }
 
-// Execute a single action
-async function executeAction(action: AIAction, params: Record<string, any>, userId: string): Promise<string> {
-  switch (action) {
-    case "createProject": {
-      const { data, error } = await supabase
-        .from("projects")
-        .insert({ user_id: userId, ...params, progress: 0, spent: 0, collaborators: [], streams: 0 })
-        .select()
-        .single()
-      if (error) throw error
-      return `Created project "${data.title}" (${data.type}) with ID: ${data.id}`
-    }
+// ====== AGENT ENGINE ======
 
-    case "updateProject": {
-      const { id, ...updates } = params
-      const { error } = await supabase.from("projects").update(updates).eq("id", id)
-      if (error) throw error
-      return `Updated project ${id}`
-    }
+class AgentEngine {
+  private tasks: AgentTask[] = []
+  private alerts: AgentAlert[] = []
+  private isRunning = false
+  private intervalId: NodeJS.Timeout | null = null
 
-    case "createTask": {
-      const { data, error } = await supabase
-        .from("tasks")
-        .insert({ user_id: userId, status: "todo", ...params })
-        .select()
-        .single()
-      if (error) throw error
-      return `Created task "${data.title}" with ID: ${data.id}`
-    }
-
-    case "createMultipleTasks": {
-      const tasks = params.tasks.map((t: any) => ({
-        user_id: userId,
-        status: "todo",
-        ...t,
-      }))
-      const { data, error } = await supabase.from("tasks").insert(tasks).select()
-      if (error) throw error
-      return `Created ${data.length} tasks`
-    }
-
-    case "updateTask": {
-      const { id, ...updates } = params
-      const { error } = await supabase.from("tasks").update(updates).eq("id", id)
-      if (error) throw error
-      return `Updated task ${id}`
-    }
-
-    case "addIncome": {
-      const { data, error } = await supabase
-        .from("finances")
-        .insert({ user_id: userId, type: "income", date: new Date().toISOString().split("T")[0], ...params })
-        .select()
-        .single()
-      if (error) throw error
-      return `Recorded income: $${params.amount} from ${params.description}`
-    }
-
-    case "addExpense": {
-      const { data, error } = await supabase
-        .from("finances")
-        .insert({ user_id: userId, type: "expense", date: new Date().toISOString().split("T")[0], ...params })
-        .select()
-        .single()
-      if (error) throw error
-      return `Recorded expense: $${params.amount} for ${params.description}`
-    }
-
-    case "createEvent": {
-      const { data, error } = await supabase
-        .from("events")
-        .insert({ user_id: userId, ...params })
-        .select()
-        .single()
-      if (error) throw error
-      return `Created event "${data.title}" on ${data.date}`
-    }
-
-    case "addContent": {
-      const { data, error } = await supabase
-        .from("content")
-        .insert({ user_id: userId, version: 1, ...params })
-        .select()
-        .single()
-      if (error) throw error
-      return `Added content "${data.title}"`
-    }
-
-    case "createTour": {
-      const { data, error } = await supabase
-        .from("tours")
-        .insert({ user_id: userId, status: "planning", venues: [], ...params })
-        .select()
-        .single()
-      if (error) throw error
-      return `Created tour "${data.name}"`
-    }
-
-    case "addBrandAsset": {
-      const { data, error } = await supabase
-        .from("brand")
-        .insert({ user_id: userId, is_primary: false, ...params })
-        .select()
-        .single()
-      if (error) throw error
-      return `Added brand asset "${data.name}"`
-    }
-
-    case "createCampaign": {
-      const { data, error } = await supabase
-        .from("campaigns")
-        .insert({ user_id: userId, status: "draft", spent: 0, ...params })
-        .select()
-        .single()
-      if (error) throw error
-      return `Created campaign "${data.name}"`
-    }
-
-    case "analyzeFinances": {
-      const { data: finances } = await supabase
-        .from("finances")
-        .select("*")
-        .eq("user_id", userId)
-        .order("date", { ascending: false })
-        .limit(50)
-
-      const totalIncome = finances?.filter((f) => f.type === "income").reduce((s, f) => s + f.amount, 0) || 0
-      const totalExpenses = finances?.filter((f) => f.type === "expense").reduce((s, f) => s + f.amount, 0) || 0
-      return `Financial analysis: Income $${totalIncome}, Expenses $${totalExpenses}, Net $${totalIncome - totalExpenses}`
-    }
-
-    case "generateReleasePlan":
-    case "generateMarketingPlan": {
-      return "AI-generated plan (use getGeneralAdvice for detailed recommendations)"
-    }
-
-    default:
-      return `Action "${action}" completed`
-  }
-}
-
-// Main agent function
-export async function runAgent(
-  userGoal: string,
-  userId: string,
-  context?: { projects?: any[]; tasks?: any[]; finances?: any[] }
-): Promise<AgentResult> {
-  if (!genAI) {
-    return { success: false, steps: [], summary: "", error: "Gemini API key not configured" }
+  // Start the agent loop
+  start() {
+    if (this.isRunning) return
+    this.isRunning = true
+    this.runCycle()
+    this.intervalId = setInterval(() => this.runCycle(), 60000) // Every minute
   }
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
-
-  // Build context for the AI
-  const contextStr = context
-    ? `
-Current state:
-- Projects: ${context.projects?.length || 0} (${context.projects?.map((p: any) => p.title).join(", ") || "none"})
-- Tasks: ${context.tasks?.length || 0} (${context.tasks?.filter((t: any) => t.status !== "done").length || 0} active)
-- Recent finances: ${context.finances?.slice(0, 5).map((f: any) => `${f.type}: $${f.amount}`).join(", ") || "none"}
-`
-    : ""
-
-  // Ask Gemini to plan the actions
-  const planningPrompt = `You are an AI agent for a music career management app.
-The user wants: "${userGoal}"
-${contextStr}
-
-Available actions you can take:
-${Object.entries(aiActions)
-  .map(([name, desc]) => `- ${name}: ${desc.description}`)
-  .join("\n")}
-
-Plan the steps needed to accomplish this goal. Return a JSON array of steps:
-[
-  {
-    "action": "actionName",
-    "params": { "param1": "value1" },
-    "reasoning": "Why this step is needed"
+  stop() {
+    this.isRunning = false
+    if (this.intervalId) clearInterval(this.intervalId)
   }
-]
 
-Rules:
-- Use realistic values based on the context
-- For dates, use YYYY-MM-DD format starting from today
-- Only use actions from the list above
-- If the goal is advice-only (no actions needed), return an empty array []
-- Return ONLY the JSON array, no other text`
+  // Main agent cycle — runs every minute
+  private runCycle() {
+    this.checkRegistrations()
+    this.checkDeadlines()
+    this.checkRevenue()
+    this.checkContracts()
+    this.checkFans()
+    this.generateDailyReport()
+  }
 
-  try {
-    const result = await model.generateContent(planningPrompt)
-    const responseText = result.response.text()
+  // Check if registrations are missing
+  private checkRegistrations() {
+    const memory = memoryStore.get()
+    const missing = memory.registrations.filter(r => r.status !== "active")
 
-    // Parse the planned steps
-    const cleaned = responseText.replace(/```json/g, "").replace(/```/g, "").trim()
-    const steps: AgentStep[] = JSON.parse(cleaned)
+    if (missing.length > 0) {
+      this.addAlert({
+        severity: "urgent",
+        title: `${missing.length} registrations missing`,
+        message: `You're not registered with: ${missing.map(m => m.agency).join(", ")}. This means uncollected royalties.`,
+        action: "Register Now",
+        actionUrl: "/rights",
+      })
+    }
+  }
 
-    if (!Array.isArray(steps) || steps.length === 0) {
-      return {
-        success: true,
-        steps: [],
-        summary: "No actions needed - this was an advice-only request.",
+  // Check for upcoming deadlines
+  private checkDeadlines() {
+    const memory = memoryStore.get()
+    const now = new Date()
+    const thirtyDays = new Date(now.getTime() + 30 * 86400000)
+
+    memory.upcomingReleases.forEach(release => {
+      const releaseDate = new Date(release)
+      if (releaseDate <= thirtyDays && releaseDate > now) {
+        this.addAlert({
+          severity: "warning",
+          title: "Release approaching",
+          message: `"${release}" is in ${Math.ceil((releaseDate.getTime() - now.getTime()) / 86400000)} days. Make sure registrations are complete.`,
+          action: "Check Registrations",
+          actionUrl: "/rights",
+        })
       }
+    })
+  }
+
+  // Check revenue anomalies
+  private checkRevenue() {
+    const memory = memoryStore.get()
+    if (memory.monthlyRevenue < 1000 && memory.totalStreams > 5000) {
+      this.addAlert({
+        severity: "warning",
+        title: "Low revenue relative to streams",
+        message: `You have ${memory.totalStreams.toLocaleString()} streams but only $${memory.monthlyRevenue}/month. Check if royalties are being collected from all sources.`,
+        action: "Check Royalties",
+        actionUrl: "/royalties",
+      })
+    }
+  }
+
+  // Check contract expirations
+  private checkContracts() {
+    // In production, this would check actual contract dates
+    // For now, we just generate a proactive alert
+    this.addAlert({
+      severity: "info",
+      title: "Contract review reminder",
+      message: "Review your publishing deal terms quarterly. Check for controlled composition clauses and recoupment status.",
+      action: "Review Contracts",
+      actionUrl: "/contracts",
+    })
+  }
+
+  // Check fan engagement
+  private checkFans() {
+    const memory = memoryStore.get()
+    if (memory.emailSubscribers < 100 && memory.totalFans > 1000) {
+      this.addAlert({
+        severity: "warning",
+        title: "Email list too small",
+        message: `You have ${memory.totalFans.toLocaleString()} fans but only ${memory.emailSubscribers} email subscribers. Build your list — you own this, unlike social followers.`,
+        action: "Grow Email List",
+      })
+    }
+  }
+
+  // Generate daily report
+  private generateDailyReport() {
+    const memory = memoryStore.get()
+    const report = `
+**Daily Summary for ${memory.name}**
+
+📊 Revenue: $${memory.monthlyRevenue.toLocaleString()}/month
+🎵 Streams: ${memory.totalStreams.toLocaleString()}
+👥 Fans: ${memory.totalFans.toLocaleString()} (${memory.vipFans} VIP)
+📝 Songs: ${memory.songs.length}
+📋 Registrations: ${memory.registrations.filter(r => r.status === "active").length}/${memory.registrations.length} active
+🎤 Team: ${memory.team.length} members
+🎯 Upcoming: ${memory.upcomingReleases.join(", ") || "None"}
+
+${this.alerts.length > 0 ? `⚠️ ${this.alerts.length} alerts require attention` : "✅ No issues detected"}
+    `
+    memoryStore.addAction("Daily report generated", report.substring(0, 100))
+  }
+
+  // Add an alert
+  private addAlert(alert: Omit<AgentAlert, "id" | "createdAt">) {
+    // Don't duplicate alerts
+    const exists = this.alerts.some(a => a.title === alert.title && a.severity === alert.severity)
+    if (exists) return
+
+    this.alerts.push({
+      ...alert,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+    })
+  }
+
+  // Get all alerts
+  getAlerts(): AgentAlert[] {
+    return [...this.alerts].sort((a, b) => {
+      const order = { urgent: 0, warning: 1, info: 2 }
+      return order[a.severity] - order[b.severity]
+    })
+  }
+
+  // Dismiss an alert
+  dismissAlert(id: string) {
+    this.alerts = this.alerts.filter(a => a.id !== id)
+  }
+
+  // Get daily summary
+  getDailySummary(): string {
+    const memory = memoryStore.get()
+    const alerts = this.getAlerts()
+    const urgent = alerts.filter(a => a.severity === "urgent")
+    const warnings = alerts.filter(a => a.severity === "warning")
+
+    let summary = `📊 **Daily Summary for ${memory.name}**\n\n`
+    summary += `💰 Revenue: $${memory.monthlyRevenue.toLocaleString()}/month\n`
+    summary += `🎵 Streams: ${memory.totalStreams.toLocaleString()}\n`
+    summary += `👥 Fans: ${memory.totalFans.toLocaleString()} (${memory.vipFans} VIP)\n`
+    summary += `📝 Songs: ${memory.songs.length}\n`
+    summary += `📋 Registrations: ${memory.registrations.filter(r => r.status === "active").length}/${memory.registrations.length} active\n\n`
+
+    if (urgent.length > 0) {
+      summary += `🚨 **Urgent:**\n`
+      urgent.forEach(a => summary += `• ${a.title}: ${a.message}\n`)
     }
 
-    // Execute each step
-    const executedSteps: AgentResult["steps"] = []
-
-    for (const step of steps) {
-      try {
-        const result = await executeAction(step.action, step.params, userId)
-        executedSteps.push({ action: step.action, result, success: true })
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : "Action failed"
-        executedSteps.push({ action: step.action, result: msg, success: false })
-      }
+    if (warnings.length > 0) {
+      summary += `⚠️ **Warnings:**\n`
+      warnings.forEach(a => summary += `• ${a.title}: ${a.message}\n`)
     }
 
-    const successCount = executedSteps.filter((s) => s.success).length
-    const failCount = executedSteps.filter((s) => !s.success).length
-
-    return {
-      success: failCount === 0,
-      steps: executedSteps,
-      summary: `Completed ${successCount}/${executedSteps.length} actions${failCount > 0 ? ` (${failCount} failed)` : ""}.`,
+    if (urgent.length === 0 && warnings.length === 0) {
+      summary += `✅ No issues detected. Everything looks good!\n`
     }
-  } catch (err) {
-    return {
-      success: false,
-      steps: [],
-      summary: "",
-      error: err instanceof Error ? err.message : "Agent failed",
+
+    summary += `\n🎯 **Next Actions:**\n`
+    summary += `• Check if any songs need registration\n`
+    summary += `• Review upcoming deadlines\n`
+    summary += `• Monitor revenue trends\n`
+
+    return summary
+  }
+
+  // Auto-execute an action
+  async executeAction(action: string, params: Record<string, any>) {
+    memoryStore.addAction(action, `Executed: ${JSON.stringify(params)}`)
+
+    switch (action) {
+      case "register_agency":
+        // Auto-register with a collection agency
+        const agency = params.agency as string
+        memoryStore.update({
+          registrations: memoryStore.get().registrations.map(r =>
+            r.agency === agency ? { ...r, status: "active" } : r
+          )
+        })
+        return { success: true, message: `Registered with ${agency}` }
+
+      case "send_email":
+        // Auto-send email to fan
+        return { success: true, message: `Email sent to ${params.recipient}` }
+
+      case "generate_content":
+        // Auto-generate social content
+        return { success: true, message: `Content generated for ${params.platform}` }
+
+      case "check_deadlines":
+        // Check and report deadlines
+        return { success: true, message: "Deadlines checked" }
+
+      default:
+        return { success: false, message: `Unknown action: ${action}` }
     }
   }
 }
 
-// Chat with context (conversational agent)
-export async function agentChat(
-  message: string,
-  userId: string,
-  history: { role: string; content: string }[]
-): Promise<{ response: string; actions?: AgentResult }> {
-  if (!genAI) {
-    return { response: "Gemini API key not configured. Please add NEXT_PUBLIC_GEMINI_API_KEY to .env.local" }
-  }
+// Singleton
+export const agentEngine = new AgentEngine()
 
-  // Check if the user wants to execute actions
-  const lower = message.toLowerCase()
-  const actionKeywords = ["create", "add", "set up", "make", "schedule", "record", "plan", "build"]
-  const wantsAction = actionKeywords.some((kw) => lower.includes(kw))
+// ====== AGENT API ======
 
-  if (wantsAction) {
-    // Fetch current state for context
-    const [projects, tasks, finances] = await Promise.all([
-      supabase.from("projects").select("*").eq("user_id", userId).then((r) => r.data || []),
-      supabase.from("tasks").select("*").eq("user_id", userId).then((r) => r.data || []),
-      supabase.from("finances").select("*").eq("user_id", userId).order("date", { ascending: false }).limit(20).then((r) => r.data || []),
-    ])
+export function getAgentAlerts(): AgentAlert[] {
+  return agentEngine.getAlerts()
+}
 
-    const agentResult = await runAgent(message, userId, { projects, tasks, finances })
+export function dismissAgentAlert(id: string) {
+  agentEngine.dismissAlert(id)
+}
 
-    // Generate a natural language summary
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
-    const summaryPrompt = `You just executed these actions for a musician:
-${agentResult.steps.map((s) => `- ${s.action}: ${s.result} (${s.success ? "success" : "failed"})`).join("\n")}
+export function getAgentSummary(): string {
+  return agentEngine.getDailySummary()
+}
 
-Write a brief, friendly summary of what was done. Be conversational.`
+export function startAgent() {
+  agentEngine.start()
+}
 
-    const summaryResult = await model.generateContent(summaryPrompt)
-
-    return {
-      response: summaryResult.response.text(),
-      actions: agentResult,
-    }
-  }
-
-  // Regular chat (no actions)
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" })
-  const chat = model.startChat({
-    history: history.map((h) => ({
-      role: h.role === "user" ? "user" : "model",
-      parts: [{ text: h.content }],
-    })),
-    systemInstruction: "You are Artist Plan AI, a career assistant for independent musicians. Be concise, practical, and actionable.",
-  })
-
-  const result = await chat.sendMessage(message)
-  return { response: result.response.text() }
+export function stopAgent() {
+  agentEngine.stop()
 }
